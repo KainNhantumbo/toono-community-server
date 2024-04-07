@@ -1,0 +1,23 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "root": true,
+  "env": { "node": true, "jest": true, "es2020": true },
+  "plugins": ["@typescript-eslint/eslint-plugin"],
+  "ignorePatterns": [".eslintrc.js", ".eslintrc.json"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-explicit-any": "off",
+    "no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "args": "none",
+        "ignoreRestSiblings": true
+      }
+    ]
+  }
+}

@@ -1,4 +1,23 @@
 {
+  "name": "sales-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "url": "https://sales-api-8nyd.onrender.com",
+  "author": {
+    "name": "Kain Nhantumbo",
+    "email": "nhantumbok@gmail.com",
+    "url": "https://portifolio-dev-mu.vercel.app"
+  },
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "typecheck": "tsc --noEmit -p ./tsconfig.json",
+    "format": "npx prettier --write \"**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx,json,md,txt}\""
+  },
+  "license": "Apache License Version 2.0",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "class-validator": "^0.14.1",
