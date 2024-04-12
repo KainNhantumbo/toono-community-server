@@ -1,13 +1,13 @@
 {
-  "name": "sales-api",
+  "name": "toono-dev-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Toono Dev Community API with MySQL",
   "main": "./dist/index.js",
-  "url": "https://sales-api-8nyd.onrender.com",
+  "url": "",
   "author": {
     "name": "Kain Nhantumbo",
     "email": "nhantumbok@gmail.com",
-    "url": "https://portifolio-dev-mu.vercel.app"
+    "url": "https://codenut-dev.vercel.app"
   },
   "scripts": {
     "start": "node dist/index.js",
