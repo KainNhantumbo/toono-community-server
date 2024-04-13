@@ -24,6 +24,7 @@
     "src/types/**/*.d.ts",
     "src/modules/**/*.ts",
     "src/*.d.ts",
-    "src/types/*.ts"
+    "src/types/*.ts",
+    "src/config/drizzle.config.ts"
   ]
 }

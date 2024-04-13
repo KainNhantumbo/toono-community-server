@@ -12,3 +12,6 @@ debug.log
 
 tsconfig.tsbuildinfo
 *.tsbuildinfo
+
+
+/src/database/migrations/**
