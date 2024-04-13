@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-// import { JsonWebTokenError } from 'jsonwebtoken';
+import { JsonWebTokenError } from 'jsonwebtoken';
 import { ZodError } from 'zod';
 import Exception from '../lib/app-exception';
 import Logger from '../lib/logger';
@@ -43,12 +43,12 @@ export function errorHandler(
       message: 'The file chosen is too large'
     });
 
-  // if (error instanceof JsonWebTokenError)
-  //   return res.status(401).json({
-  //     code: 'Authorization Error',
-  //     status: 401,
-  //     message: 'Unauthorized: invalid credentials.'
-  //   });
+  if (error instanceof JsonWebTokenError)
+    return res.status(401).json({
+      code: 'Authorization Error',
+      status: 401,
+      message: 'Unauthorized: invalid credentials.'
+    });
 
   if (error instanceof ZodError)
     return res.status(401).json({

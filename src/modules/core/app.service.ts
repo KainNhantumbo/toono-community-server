@@ -2,10 +2,10 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
-// import swaggerSpec from '../../docs/swagger-spec.doc.json';
-// import swaggerUI from 'swagger-ui-express';
+import swaggerUI from 'swagger-ui-express';
 import { corsOptions } from '../../config/cors.config';
 import { rateLimiter } from '../../config/throttle.config';
+import swaggerSpec from '../../docs/swagger-spec.doc.json';
 import { errorHandler } from '../../middleware/error.middleware';
 import { error_route } from './app.router';
 
@@ -21,7 +21,7 @@ export default class CreateApp {
     this.app.use(cookieParser());
 
     // app routes
-    // this.app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+    this.app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
     // errors
     this.app.use(error_route);
