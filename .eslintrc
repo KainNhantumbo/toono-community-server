@@ -1,7 +1,7 @@
 {
   "parser": "@typescript-eslint/parser",
   "root": true,
-  "env": { "node": true, "jest": true, "es2020": true },
+  "env": { "node": true, "es2020": true },
   "plugins": ["@typescript-eslint/eslint-plugin"],
   "ignorePatterns": [".eslintrc.js", ".eslintrc.json"],
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
