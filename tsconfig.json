@@ -15,16 +15,8 @@
     "strict": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": false,
-    "noUnusedLocals": true,
     "typeRoots": ["./node_modules/@types", "src/types/**/*.d.ts"]
   },
   "exclude": ["node_modules"],
-  "include": [
-    "src/*",
-    "src/types/**/*.d.ts",
-    "src/modules/**/*.ts",
-    "src/*.d.ts",
-    "src/types/*.ts",
-    "src/config/drizzle.config.ts"
-  ]
+  "include": ["src/*"]
 }
