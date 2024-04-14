@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import 'dotenv/config';
 import cors from 'cors';
 
 export const DOMAINS = String(process.env?.ALLOWED_DOMAINS).split(',') || [];

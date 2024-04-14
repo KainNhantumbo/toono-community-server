@@ -1,6 +1,6 @@
-import 'dotenv/config'
-import { Request, Response } from "express";
-import Exception from "../../lib/app-exception";
+import 'dotenv/config';
+import { Request, Response } from 'express';
+import Exception from '../../lib/app-exception';
 import { createToken, verifyToken } from '../../lib/utils';
 
 export default class AuthController {

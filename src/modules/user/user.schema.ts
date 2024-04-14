@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const createUserSchema = z.object({})
-export const updateUserSchema = z.object({})
+export const createUserSchema = z.object({});
+export const updateUserSchema = z.object({});
