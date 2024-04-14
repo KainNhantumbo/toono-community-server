@@ -41,7 +41,7 @@ export const post = pgTable('post', {
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   user_id: uuid('user_id')
-    .references(() => user.id)
+    .references(() => user.id, { onDelete: 'cascade' })
     .notNull()
 });
 
@@ -53,7 +53,7 @@ export const user_profile_image = pgTable('user_profile_image', {
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   user_id: uuid('user_id')
-    .references(() => user.id)
+    .references(() => user.id, { onDelete: 'cascade' })
     .notNull()
 });
 
@@ -64,7 +64,7 @@ export const post_cover_image = pgTable('post_cover_image', {
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   post_id: uuid('post_id')
-    .references(() => post.id)
+    .references(() => post.id, { onDelete: 'cascade' })
     .notNull()
 });
 
@@ -76,7 +76,7 @@ export const network_urls = pgTable('network_urls', {
   instagram: varchar('instagram', { length: 128 }).default(''),
   linkedin: varchar('linkedin', { length: 128 }).default(''),
   user_id: uuid('user_id')
-    .references(() => user.id)
+    .references(() => user.id, { onDelete: 'cascade' })
     .notNull()
 });
 
@@ -86,21 +86,21 @@ export const claps = pgTable('claps', {
     .references(() => user.id)
     .notNull(),
   post_id: uuid('post_id')
-    .references(() => post.id)
+    .references(() => post.id, { onDelete: 'cascade' })
     .notNull()
 });
 
-export const comments = pgTable('comments', {
+export const comment = pgTable('comment', {
   id: uuid('id').primaryKey().defaultRandom().notNull(),
   content: varchar('content', { length: 512 }).notNull(),
-  parent_comment: uuid('parent_comment').references(() => comments.id),
+  parent_comment: uuid('parent_comment'),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   user_id: uuid('user_id')
-    .references(() => user.id)
+    .references(() => user.id, { onDelete: 'cascade' })
     .notNull(),
   post_id: uuid('post_id')
-    .references(() => post.id)
+    .references(() => post.id, { onDelete: 'cascade' })
     .notNull()
 });
 
@@ -109,6 +109,16 @@ export const userRelations = relations(user, ({ one, many }) => ({
   posts: many(post),
   profileImage: one(user_profile_image),
   network: one(network_urls)
+}));
+
+// self relation
+export const commentsRelations = relations(comment, ({ one, many }) => ({
+  subComments: many(comment, { relationName: 'subComments' }),
+  parentComment: one(comment, {
+    relationName: 'subComments',
+    fields: [comment.parent_comment],
+    references: [comment.id]
+  })
 }));
 
 export const postRelations = relations(post, ({ one, many }) => ({
