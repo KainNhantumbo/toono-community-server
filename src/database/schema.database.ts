@@ -107,14 +107,14 @@ export const comment = pgTable('comment', {
 // table relations
 export const userRelations = relations(user, ({ one, many }) => ({
   posts: many(post),
-  profileImage: one(user_profile_image),
+  profile_image: one(user_profile_image),
   network: one(network_urls)
 }));
 
 // self relation
 export const commentsRelations = relations(comment, ({ one, many }) => ({
-  subComments: many(comment, { relationName: 'subComments' }),
-  parentComment: one(comment, {
+  sub_comments: many(comment, { relationName: 'subComments' }),
+  parent_comment: one(comment, {
     relationName: 'subComments',
     fields: [comment.parent_comment],
     references: [comment.id]

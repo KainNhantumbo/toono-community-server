@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import 'dotenv/config';
 import type { Request, Response } from 'express';
-import { db } from '../../database/client.config';
+import { db } from '../../database/client.database';
 import Exception from '../../lib/app-exception';
 import { createToken, verifyToken } from '../../lib/utils';
 import { LoginValidationSchema } from './auth.schema';
@@ -12,7 +12,7 @@ export default class AuthController {
     const user = await db.query.user.findFirst({
       where: (table, func) => func.eq(table.email, email),
       columns: { id: true, email: true, name: true, role: true, password: true },
-      with: { profileImage: true }
+      with: { profile_image: true }
     });
 
     if (!user) throw new Exception('User not found.', 404);
@@ -43,7 +43,7 @@ export default class AuthController {
         token: accessToken,
         name: user.name,
         email: user.email,
-        profile_image: user.profileImage?.url || ''
+        profile_image: user.profile_image?.url || ''
       });
   }
 
@@ -57,7 +57,7 @@ export default class AuthController {
     const user = await db.query.user.findFirst({
       where: (table, fn) => fn.eq(table.id, decodedPayload.id),
       columns: { id: true, email: true, name: true, role: true, password: true },
-      with: { profileImage: true }
+      with: { profile_image: true }
     });
 
     if (!user) throw new Exception('Invalid credentials.', 401);
@@ -72,7 +72,7 @@ export default class AuthController {
       token: accessToken,
       name: user.name,
       email: user.email,
-      profile_image: user.profileImage?.url || ''
+      profile_image: user.profile_image?.url || ''
     });
   }
 

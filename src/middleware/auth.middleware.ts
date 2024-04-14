@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import Exception from '../lib/app-exception';
 import { asyncWrapper, verifyToken } from '../lib/utils';
-import { Server } from '../types';
+import type { Server } from '../types';
 
 export const authenticate = asyncWrapper(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {

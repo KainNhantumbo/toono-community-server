@@ -1,10 +1,10 @@
+import expressListRoutes from 'express-list-routes';
+import { join } from 'node:path';
 import Package from '../../../package.json';
+import { docsGenerator, docsSchema } from '../../config/swagger.config';
+import { client as databaseClient } from '../../database/client.database';
 import { logger } from '../../lib/utils';
 import type { Server } from '../../types';
-import expressListRoutes from 'express-list-routes';
-import { docsGenerator, docsSchema } from '../../config/swagger.config';
-import { join } from 'node:path';
-import { client as databaseClient } from '../../database/client.config';
 
 export default class Bootstrap {
   public readonly props: Server.AppProps;
