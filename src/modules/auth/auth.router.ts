@@ -6,7 +6,7 @@ const router = Router();
 const controller = new AuthController();
 
 router.get('/revalidate', asyncWrapper(controller.revalidate));
-router.post('/login', asyncWrapper(controller.login));
-router.post('/logout', asyncWrapper(controller.logout));
+router.post('/sign-in', asyncWrapper(controller.login));
+router.post('/sign-out', asyncWrapper(controller.logout));
 
 export { router as auth_router };

@@ -9,6 +9,7 @@ import swaggerSpec from '../../docs/swagger-spec.doc.json';
 import { errorHandler } from '../../middleware/error.middleware';
 import { error_route } from './app.router';
 import { auth_router } from '../auth/auth.router';
+import { user_router } from '../user/user.router';
 
 export default class CreateApp {
   private readonly app = express();
@@ -23,7 +24,9 @@ export default class CreateApp {
 
     // app routes
     this.app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-    this.app.use('/api/v1', auth_router);
+    this.app.use('/api/v1/auth', auth_router);
+    this.app.use('/api/v1/users', user_router);
+
 
     // errors
     this.app.use(error_route);
