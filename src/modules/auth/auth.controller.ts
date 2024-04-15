@@ -9,7 +9,7 @@ import { LoginValidationSchema } from './auth.schema';
 export default class AuthController {
   async login(req: Request, res: Response): Promise<void> {
     const { email, password } = await LoginValidationSchema.parseAsync(req.body);
-    const user = await db.query.user.findFirst({
+    const user = await db.query.users.findFirst({
       where: (table, func) => func.eq(table.email, email),
       columns: { id: true, email: true, name: true, role: true, password: true },
       with: { profile_image: true }
@@ -54,7 +54,7 @@ export default class AuthController {
     const decodedPayload = await verifyToken(token, process.env.REFRESH_TOKEN || '');
     if (!decodedPayload) throw new Exception('Access denied.', 403);
 
-    const user = await db.query.user.findFirst({
+    const user = await db.query.users.findFirst({
       where: (table, fn) => fn.eq(table.id, decodedPayload.id),
       columns: { id: true, email: true, name: true, role: true, password: true },
       with: { profile_image: true }

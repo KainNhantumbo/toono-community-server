@@ -14,7 +14,7 @@ import {
 export const user_role_enum = pgEnum('user_role', ['USER', 'ADMIN']);
 
 // main level tables
-export const user = pgTable('user', {
+export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom().notNull(),
   name: varchar('name', { length: 64 }).notNull(),
   user_name: varchar('user_name', { length: 32 }).default('').notNull(),
@@ -26,13 +26,13 @@ export const user = pgTable('user', {
   location: varchar('location', { length: 128 }).default('').notNull(),
   birthday: date('birthday').default(''),
   email: varchar('email', { length: 64 }).notNull().unique(),
-  password: varchar('password').notNull(),
   role: user_role_enum('role').default('USER').notNull(),
+  password: varchar('password').notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull()
 });
 
-export const post = pgTable('post', {
+export const posts = pgTable('posts', {
   id: uuid('id').primaryKey().defaultRandom().notNull(),
   title: varchar('title', { length: 256 }).default('').notNull(),
   content: text('content').default('').notNull(),
@@ -41,7 +41,7 @@ export const post = pgTable('post', {
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   user_id: uuid('user_id')
-    .references(() => user.id, { onDelete: 'cascade' })
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull()
 });
 
@@ -53,7 +53,7 @@ export const user_profile_image = pgTable('user_profile_image', {
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   user_id: uuid('user_id')
-    .references(() => user.id, { onDelete: 'cascade' })
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull()
 });
 
@@ -64,7 +64,7 @@ export const post_cover_image = pgTable('post_cover_image', {
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   post_id: uuid('post_id')
-    .references(() => post.id, { onDelete: 'cascade' })
+    .references(() => posts.id, { onDelete: 'cascade' })
     .notNull()
 });
 
@@ -76,17 +76,17 @@ export const network_urls = pgTable('network_urls', {
   instagram: varchar('instagram', { length: 128 }).default(''),
   linkedin: varchar('linkedin', { length: 128 }).default(''),
   user_id: uuid('user_id')
-    .references(() => user.id, { onDelete: 'cascade' })
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull()
 });
 
 export const claps = pgTable('claps', {
   id: uuid('id').primaryKey().defaultRandom(),
   user_id: uuid('user_id')
-    .references(() => user.id)
+    .references(() => users.id)
     .notNull(),
   post_id: uuid('post_id')
-    .references(() => post.id, { onDelete: 'cascade' })
+    .references(() => posts.id, { onDelete: 'cascade' })
     .notNull()
 });
 
@@ -97,16 +97,16 @@ export const comment = pgTable('comment', {
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   user_id: uuid('user_id')
-    .references(() => user.id, { onDelete: 'cascade' })
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   post_id: uuid('post_id')
-    .references(() => post.id, { onDelete: 'cascade' })
+    .references(() => posts.id, { onDelete: 'cascade' })
     .notNull()
 });
 
 // table relations
-export const userRelations = relations(user, ({ one, many }) => ({
-  posts: many(post),
+export const userRelations = relations(users, ({ one, many }) => ({
+  posts: many(posts),
   profile_image: one(user_profile_image),
   network: one(network_urls)
 }));
@@ -121,40 +121,40 @@ export const commentsRelations = relations(comment, ({ one, many }) => ({
   })
 }));
 
-export const postRelations = relations(post, ({ one, many }) => ({
-  user: one(user, {
-    fields: [post.user_id],
-    references: [user.id]
+export const postRelations = relations(posts, ({ one, many }) => ({
+  user: one(users, {
+    fields: [posts.user_id],
+    references: [users.id]
   }),
   claps: many(claps),
   coverImage: one(post_cover_image)
 }));
 
 export const userProfileImageRelations = relations(user_profile_image, ({ one }) => ({
-  user: one(user, {
+  user: one(users, {
     fields: [user_profile_image.user_id],
-    references: [user.id]
+    references: [users.id]
   })
 }));
 
 export const postCoverImageRelations = relations(post_cover_image, ({ one }) => ({
-  post: one(post, {
+  post: one(posts, {
     fields: [post_cover_image.post_id],
-    references: [post.id]
+    references: [posts.id]
   })
 }));
 
 export const clapsRelations = relations(claps, ({ one }) => ({
-  post: one(post, {
+  post: one(posts, {
     fields: [claps.post_id],
-    references: [post.id]
+    references: [posts.id]
   }),
-  user: one(user, {
+  user: one(users, {
     fields: [claps.user_id],
-    references: [user.id]
+    references: [users.id]
   })
 }));
 
 export const networkUrlsRelations = relations(network_urls, ({ one }) => ({
-  user: one(user, { fields: [network_urls.user_id], references: [user.id] })
+  user: one(users, { fields: [network_urls.user_id], references: [users.id] })
 }));
