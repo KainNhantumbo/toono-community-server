@@ -24,7 +24,7 @@ export const users = pgTable('users', {
   learning: varchar('learning', { length: 256 }).default('').notNull(),
   available: varchar('available', { length: 256 }).default('').notNull(),
   location: varchar('location', { length: 128 }).default('').notNull(),
-  birthday: date('birthday').default(''),
+  birthday: date('birthday'),
   email: varchar('email', { length: 64 }).notNull().unique(),
   role: user_role_enum('role').default('USER').notNull(),
   password: varchar('password').notNull(),

@@ -6,7 +6,7 @@ import swaggerUI from 'swagger-ui-express';
 import { corsOptions } from '../../config/cors.config';
 import { rateLimiter } from '../../config/throttle.config';
 import swaggerSpec from '../../docs/swagger-spec.doc.json';
-import { errorHandler } from '../../middleware/error.middleware';
+import ExceptionHandler from '../../middleware/error.middleware';
 import { error_route } from './app.router';
 import { auth_router } from '../auth/auth.router';
 import { user_router } from '../user/user.router';
@@ -27,10 +27,9 @@ export default class CreateApp {
     this.app.use('/api/v1/auth', auth_router);
     this.app.use('/api/v1/users', user_router);
 
-
     // errors
     this.app.use(error_route);
-    this.app.use(errorHandler);
+    this.app.use(ExceptionHandler.handler);
   }
 
   getAppInstance() {
