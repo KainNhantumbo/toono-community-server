@@ -9,12 +9,11 @@ export const createPostSchema = z.object({
     .string()
     .min(32, 'Post content must be greater than 32 characters.')
     .max(24000, 'Post content too long.'),
-  public: z.boolean().default(true).optional(),
+  public: z.boolean().default(true),
   tags: z
     .array(z.string({ invalid_type_error: 'Tags must be a string.' }))
-    .max(4, { message: 'Only 4 tags are allowed.' })
-    .optional(),
-  profileImage: z.string().optional()
+    .max(4, { message: 'Only 4 tags are allowed.' }).default([]),
+  coverImage: z.string().optional()
 });
 
 export const updatePostSchema = z.object({
@@ -31,5 +30,5 @@ export const updatePostSchema = z.object({
     .array(z.string({ invalid_type_error: 'Tags must be a string.' }))
     .max(4, { message: 'Only 4 tags are allowed.' })
     .optional(),
-  profileImage: z.string().optional()
+  coverImage: z.string().optional()
 });

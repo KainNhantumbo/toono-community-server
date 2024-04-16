@@ -49,7 +49,7 @@ export default class UserController {
       with: { network: true, profile_image: true },
       orderBy: (table, fn) => {
         const orderEnum = ['asc', 'desc'];
-        const [field, order] = String(sort).split(',')
+        const [field, order] = String(sort).split(',');
         if (!Object.keys(table).includes(field)) return undefined;
         if (!orderEnum.includes(order)) return undefined;
         // @ts-expect-error(order is not a function)
@@ -91,7 +91,7 @@ export default class UserController {
       data.password = await bcrypt.hash(data.password, 10);
     }
 
-    await this.assetProcessor(session, user, profileImage);
+    await this.profileImageProcessor(session, user, profileImage);
     await db.update(users).set(data).where(drizzle.eq(users.id, session.id));
     res.sendStatus(200);
   }
@@ -141,10 +141,10 @@ export default class UserController {
     res.sendStatus(204);
   }
 
-  private async assetProcessor(
+  private async profileImageProcessor(
     session: { id: string },
     user: { id: string; profile_image: { public_id: string } | null },
-    profileImage?: string
+    profileImage?: unknown
   ) {
     if (process.env.NODE_ENV !== 'production') {
       if (typeof profileImage === 'string' && isNotEmpty(profileImage)) {
