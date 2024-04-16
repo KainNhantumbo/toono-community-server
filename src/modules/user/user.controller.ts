@@ -36,7 +36,7 @@ export default class UserController {
       };
     }
 
-    const users = await db.query.users.findMany({
+    const foundUsers = await db.query.users.findMany({
       where: (table, fn) => {
         const query = String(search);
         if (!query) return undefined;
@@ -49,16 +49,17 @@ export default class UserController {
       with: { network: true, profile_image: true },
       orderBy: (table, fn) => {
         const orderEnum = ['asc', 'desc'];
-        const [field, order] = String(sort).split(',');
+        const [field, order] = String(sort).split(',')
         if (!Object.keys(table).includes(field)) return undefined;
         if (!orderEnum.includes(order)) return undefined;
+        // @ts-expect-error(order is not a function)
         return fn[order](table[field]);
       },
       columns: requestedColumns ?? defaultColumns,
       offset: offset ? +offset : undefined,
       limit: limit ? +limit : undefined
     });
-    res.status(200).json(users);
+    res.status(200).json(foundUsers);
   }
 
   async create(req: Request, res: Response): Promise<void> {
