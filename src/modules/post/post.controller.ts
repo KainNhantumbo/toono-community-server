@@ -1,6 +1,6 @@
 import Exception from '../../lib/app-exception';
 import { db } from '../../database/client.database';
-import {CLOUD_POSTS_IMAGE_REPOSITORY} from '../../shared/constants'
+import { CLOUD_POSTS_IMAGE_REPOSITORY } from '../../shared/constants';
 import { post_cover_image, posts, user_profile_image } from '../../database/schema.database';
 import { cloudinaryAPI } from '../../config/cloudinary.config';
 import type { Request, Response } from 'express';
@@ -85,7 +85,28 @@ export default class PostController {
     res.sendStatus(200);
   }
 
-  async delete(req: Request, res: Response): Promise<void> {}
+  async delete(req: Request, res: Response): Promise<void> {
+    const { id: postId } = req.params;
+    const post = await db.query.posts.findFirst({
+      where: (table, fn) => fn.eq(table.id, postId),
+      columns: { id: true },
+      with: { coverImage: true }
+    });
+    if (!post) throw new Exception('Post not found.', 404);
+
+    //  delete posts cover images if exist
+    if (process.env.NODE_ENV === 'production' && post.coverImage) {
+      await cloudinaryAPI.uploader.destroy(post.coverImage.public_id, { invalidate: true });
+    }
+
+    const [deletedPost] = await db
+      .delete(posts)
+      .where(drizzle.eq(posts.id, postId))
+      .returning({ id: posts.id });
+
+    if (!deletedPost) throw new Exception('Error while deleting your post.', 400);
+    res.sendStatus(204);
+  }
 
   private async coverImageProcessor(postId: string, coverImage: unknown) {
     const foundImage = await db.query.post_cover_image.findFirst({
@@ -109,7 +130,6 @@ export default class PostController {
       if (typeof coverImage === 'string' && isEmpty(coverImage)) {
         await db.delete(post_cover_image).where(drizzle.eq(post_cover_image.post_id, postId));
       }
-      return;
     }
 
     if (process.env.NODE_ENV === 'production') {
@@ -124,7 +144,7 @@ export default class PostController {
           await db.insert(post_cover_image).values({
             public_id: result.public_id,
             url: result.secure_url,
-            post_id:postId
+            post_id: postId
           });
         } else {
           await db

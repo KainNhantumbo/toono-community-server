@@ -142,7 +142,7 @@ export default class UserController {
   }
 
   private async profileImageProcessor(
-    session: { id: string },
+    { id: userId }: { id: string },
     user: { id: string; profile_image: { public_id: string } | null },
     profileImage?: unknown
   ) {
@@ -151,19 +151,19 @@ export default class UserController {
         if (!user.profile_image) {
           await db
             .insert(user_profile_image)
-            .values({ public_id: randomUUID(), url: profileImage, user_id: session.id });
+            .values({ public_id: randomUUID(), url: profileImage, user_id: userId });
         } else {
           await db
             .update(user_profile_image)
             .set({ public_id: randomUUID(), url: profileImage })
-            .where(drizzle.eq(user_profile_image.user_id, session.id));
+            .where(drizzle.eq(user_profile_image.user_id, userId));
         }
       }
 
       if (typeof profileImage === 'string' && isEmpty(profileImage)) {
         await db
           .delete(user_profile_image)
-          .where(drizzle.eq(user_profile_image.user_id, session.id));
+          .where(drizzle.eq(user_profile_image.user_id, userId));
       }
     } else {
       // if the profileImage exists, creates it (if doesn't yet) or updates
@@ -183,7 +183,7 @@ export default class UserController {
           await db
             .update(user_profile_image)
             .set({ public_id: result.public_id, url: result.secure_url })
-            .where(drizzle.eq(user_profile_image.user_id, session.id));
+            .where(drizzle.eq(user_profile_image.user_id, userId));
         }
 
         // if the profileImage is empty, delete image on the cloud
@@ -193,7 +193,7 @@ export default class UserController {
           });
           await db
             .delete(user_profile_image)
-            .where(drizzle.eq(user_profile_image.user_id, session.id));
+            .where(drizzle.eq(user_profile_image.user_id, userId));
         }
       }
     }
