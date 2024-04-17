@@ -16,7 +16,6 @@ export default class PostClapsController {
     if (clapRecord) throw new Exception('Clap already added.', 409);
 
     await db.insert(claps).values({ user_id: session.id, post_id: postId });
-
     res.sendStatus(201);
   }
 
@@ -35,6 +34,6 @@ export default class PostClapsController {
       .where(
         drizzle.and(drizzle.eq(claps.post_id, postId), drizzle.eq(claps.user_id, session.id))
       );
-    res.sendStatus(200);
+    res.sendStatus(204);
   }
 }
