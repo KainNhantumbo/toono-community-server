@@ -6,14 +6,15 @@ import { cloudinaryAPI } from '../../config/cloudinary.config';
 import { db } from '../../database/client.database';
 import { post_cover_image, posts } from '../../database/schema.database';
 import Exception from '../../lib/app-exception';
+import { generatePostSlug } from '../../lib/utils';
 import { CLOUD_POSTS_IMAGE_REPOSITORY } from '../../shared/constants';
 import { createPostSchema, updatePostSchema } from './post.schema';
 
 export default class PostController {
   async findOne(req: Request, res: Response): Promise<void> {
-    const { id } = req.params;
+    const { slug } = req.params;
     const post = await db.query.posts.findFirst({
-      where: (table, fn) => fn.eq(table.id, id),
+      where: (table, fn) => fn.eq(table.slug, slug),
       with: {
         claps: true,
         coverImage: true,
@@ -34,7 +35,7 @@ export default class PostController {
       }, {});
     }
 
-    const posts = await db.query.posts.findMany({
+    const records = await db.query.posts.findMany({
       where: (table, fn) => {
         const query = String(search);
         if (!query) return undefined;
@@ -50,22 +51,32 @@ export default class PostController {
         const [field, order] = String(sort).split(',');
         if (!Object.keys(table).includes(field)) return undefined;
         if (!orderEnum.includes(order)) return undefined;
+        //FIXME: don't know how to fix this yet
+        // @ts-expect-error(order may not be a function)
         return fn[order](table[field]);
       },
       columns: requestedColumns,
       offset: offset ? +offset : undefined,
       limit: limit ? +limit : undefined
     });
-    res.status(200).json(posts);
+    res.status(200).json(records);
   }
 
   async create(req: Request, res: Response): Promise<void> {
     const { session, ...rest } = req.body;
-    const { coverImage, ...data } = await createPostSchema.parseAsync(rest);
+    const { coverImage, title, ...data } = await createPostSchema.parseAsync(rest);
+    const slug = generatePostSlug(title);
+
+    const postRecord = await db.query.posts.findFirst({
+      where: (table, fn) => fn.eq(table.slug, slug)
+    });
+    if (postRecord) throw new Exception('A post with provided title, already found.', 409);
+
     const [post] = await db
       .insert(posts)
-      .values({ ...data, user_id: session.id })
+      .values({ ...data, title, slug, user_id: session.id })
       .returning({ id: posts.id });
+
     if (coverImage) await this.coverImageProcessor(post.id, coverImage);
     res.sendStatus(201);
   }
@@ -99,12 +110,12 @@ export default class PostController {
       await cloudinaryAPI.uploader.destroy(post.coverImage.public_id, { invalidate: true });
     }
 
-    const [deletedPost] = await db
+    const [record] = await db
       .delete(posts)
       .where(drizzle.eq(posts.id, postId))
       .returning({ id: posts.id });
 
-    if (!deletedPost) throw new Exception('Error while deleting your post.', 400);
+    if (!record) throw new Exception('Error while deleting your post.', 400);
     res.sendStatus(204);
   }
 

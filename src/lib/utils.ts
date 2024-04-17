@@ -55,12 +55,7 @@ export const logger: winston.Logger = winston.createLogger({
   transports: [new winston.transports.Console(), new winston.transports.Http()]
 });
 
-export function isValidEmail(data: unknown): boolean {
-  const regex: RegExp = new RegExp(
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-  );
-  const result: RegExpExecArray | null = regex.exec(String(data));
-  if (!result) return false;
-  if (!isEmail(String(data))) return false;
-  return true;
-}
+export const generatePostSlug = (title: string) => {
+  const slug = title.toLowerCase().replaceAll('.', '').replaceAll(' ', '-');
+  return slug;
+};

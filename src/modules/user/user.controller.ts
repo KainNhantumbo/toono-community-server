@@ -52,7 +52,8 @@ export default class UserController {
         const [field, order] = String(sort).split(',');
         if (!Object.keys(table).includes(field)) return undefined;
         if (!orderEnum.includes(order)) return undefined;
-        // @ts-expect-error(order is not a function)
+        //FIXME: don't know how to fix this yet
+        // @ts-expect-error(order may not be a function)
         return fn[order](table[field]);
       },
       columns: requestedColumns ?? defaultColumns,
@@ -144,12 +145,12 @@ export default class UserController {
       }
     }
 
-    const [deletedUser] = await db
+    const [record] = await db
       .delete(users)
       .where(drizzle.eq(users.id, session.id))
       .returning({ id: users.id });
 
-    if (!deletedUser) throw new Exception('Error while deleting user.', 400);
+    if (!record) throw new Exception('Error while deleting user.', 400);
     res.sendStatus(204);
   }
 

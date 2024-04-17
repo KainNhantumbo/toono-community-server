@@ -35,6 +35,7 @@ export const users = pgTable('users', {
 export const posts = pgTable('posts', {
   id: uuid('id').primaryKey().defaultRandom().notNull(),
   title: varchar('title', { length: 256 }).default('').notNull(),
+  slug: varchar('slug', { length: 736 }).default('').notNull().unique(),
   content: text('content').default('').notNull(),
   public: boolean('public').default(true).notNull(),
   tags: varchar('tags', { length: 16 }).array(4),
