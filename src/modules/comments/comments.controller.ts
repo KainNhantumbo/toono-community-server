@@ -3,21 +3,20 @@ import type { Request, Response } from 'express';
 import { db } from '../../database/client.database';
 import { comment } from '../../database/schema.database';
 import Exception from '../../lib/app-exception';
-import { isNotEmpty } from 'class-validator';
 import { CommentSchema } from './comments.schema';
 
 export default class CommentController {
   async findAll(req: Request, res: Response): Promise<void> {
-    const { postId, userId, limit, offset } = req.params;
+    const { postId, userId, limit, offset } = req.query;
     const data = db.query.comment.findMany({
       where: (table, fn) => {
-        if (isNotEmpty(postId) && isNotEmpty(userId)) {
+        if (postId && typeof postId === 'string' && userId && typeof userId === 'string') {
           return fn.and(fn.eq(table.user_id, userId), fn.eq(table.post_id, postId));
         }
         return undefined;
       },
-      offset: isNotEmpty(offset) ? +offset : undefined,
-      limit: isNotEmpty(limit) ? +limit : undefined
+      offset: offset ? +offset : undefined,
+      limit: limit ? +limit : undefined
     });
     res.status(200).json(data);
   }

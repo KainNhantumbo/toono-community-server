@@ -8,6 +8,7 @@ import { rateLimiter } from '../../config/throttle.config';
 import swaggerSpec from '../../docs/swagger-spec.doc.json';
 import ExceptionHandler from '../../middleware/error.middleware';
 import { auth_router } from '../auth/auth.router';
+import { comments_router } from '../comments/comments.router';
 import { post_claps_router } from '../post-claps/post-claps.router';
 import { post_router } from '../post/post.router';
 import { user_router } from '../user/user.router';
@@ -29,6 +30,7 @@ export default class CreateApp {
     this.app.use('/api/v1/auth', auth_router);
     this.app.use('/api/v1/users', user_router);
     this.app.use('/api/v1/posts', post_router);
+    this.app.use('/api/v1/comments', comments_router);
     this.app.use('/api/v1/claps', post_claps_router);
 
     // errors
