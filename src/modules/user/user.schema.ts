@@ -33,7 +33,15 @@ export const UpdateUserSchema = z.object({
       invalid_type_error: 'Password must be a string',
       required_error: 'Please provide your password.'
     })
-    .min(8, 'Password must contain at least 8 characters').optional(),
+    .min(8, 'Password must contain at least 8 characters')
+    .optional(),
   birthday: z.coerce.string({ invalid_type_error: 'Invalid birthday value' }).optional(),
-  profileImage: z.string().optional()
+  profileImage: z.string().optional(),
+  network: z.object({
+    website: z.string().url('Please insert valid url.').optional().default(''),
+    github: z.string().url('Please insert valid url.').optional().default(''),
+    facebook: z.string().url('Please insert valid url.').optional().default(''),
+    instagram: z.string().url('Please insert valid url.').optional().default(''),
+    linkedin: z.string().url('Please insert valid url.').optional().default('')
+  })
 });

@@ -5,7 +5,7 @@ import * as drizzle from 'drizzle-orm';
 import type { Request, Response } from 'express';
 import { cloudinaryAPI } from '../../config/cloudinary.config';
 import { db } from '../../database/client.database';
-import { user_profile_image, users } from '../../database/schema.database';
+import { network_urls, user_profile_image, users } from '../../database/schema.database';
 import Exception from '../../lib/app-exception';
 import { CLOUD_USER_IMAGE_REPOSITORY } from '../../shared/constants';
 import { CreateUserSchema, UpdateUserSchema } from './user.schema';
@@ -72,13 +72,18 @@ export default class UserController {
     if (user) throw new Exception('Account with provided password already exists.', 409);
 
     const hash = await bcrypt.hash(password, 10);
-    await db.insert(users).values({ ...data, password: hash, email });
+    const [record] = await db
+      .insert(users)
+      .values({ ...data, password: hash, email })
+      .returning({ id: users.id });
+    await db.insert(network_urls).values({ user_id: record.id });
+
     res.sendStatus(201);
   }
 
   async update(req: Request, res: Response): Promise<void> {
     const { session, ...rest } = req.body;
-    const { profileImage, ...data } = await UpdateUserSchema.parseAsync(rest);
+    const { profileImage, network, ...data } = await UpdateUserSchema.parseAsync(rest);
 
     const user = await db.query.users.findFirst({
       where: (table, fn) => fn.eq(table.id, session.id),
@@ -89,6 +94,13 @@ export default class UserController {
 
     if (data.password) {
       data.password = await bcrypt.hash(data.password, 10);
+    }
+
+    if (network) {
+      await db
+        .update(network_urls)
+        .set(network)
+        .where(drizzle.eq(network_urls.user_id, session.id));
     }
 
     await this.profileImageProcessor(session, user, profileImage);
