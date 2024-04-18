@@ -22,6 +22,7 @@
     "format": "npx prettier --write \"**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx,json,md,txt}\""
   },
   "license": "Apache License Version 2.0",
+  "repository": "https://github.com/KainNhantumbo/toono-community-server.git",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "class-validator": "^0.14.1",

@@ -40,9 +40,9 @@ export default class PostController {
         const query = String(search);
         if (!query) return undefined;
         return fn.or(
-          fn.ilike(table.title, query),
-          fn.ilike(table.content, query),
-          fn.ilike(table.tags, query)
+          fn.ilike(table.title, `%${query}%`),
+          fn.ilike(table.content, `%${query}%`),
+          fn.ilike(table.tags, `%${query}%`)
         );
       },
       with: { claps: true, coverImage: true },

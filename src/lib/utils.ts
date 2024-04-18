@@ -1,4 +1,3 @@
-import { isEmail } from 'class-validator';
 import type { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import winston from 'winston';
