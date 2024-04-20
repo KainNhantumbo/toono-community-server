@@ -53,6 +53,9 @@ dependencies:
   winston:
     specifier: ^3.13.0
     version: 3.13.0
+  xlsx:
+    specifier: https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz
+    version: '@cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz'
   zod:
     specifier: ^3.22.4
     version: 3.22.4
@@ -3125,3 +3128,11 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+
+  '@cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz':
+    resolution: {tarball: https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz}
+    name: xlsx
+    version: 0.20.2
+    engines: {node: '>=0.8'}
+    hasBin: true
+    dev: false
