@@ -47,6 +47,9 @@ dependencies:
   postgres:
     specifier: ^3.4.4
     version: 3.4.4
+  reading-time-estimator:
+    specifier: ^1.11.0
+    version: 1.11.0
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.19.2)
@@ -2674,6 +2677,10 @@ packages:
       inherits: 2.0.4
       string_decoder: 1.3.0
       util-deprecate: 1.0.2
+    dev: false
+
+  /reading-time-estimator@1.11.0:
+    resolution: {integrity: sha512-2813WXSxCPsDvgrYq+cPBI4gGqgmtKlo62rpI0mwnhrMfZJIqbDfOeidr9Y36OruDesQGmYA9DkVRmvsBbv2DA==}
     dev: false
 
   /resolve-from@4.0.0:

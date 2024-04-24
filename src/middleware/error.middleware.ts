@@ -6,20 +6,11 @@ import Logger from '../lib/logger';
 import { logger as consoleLogger } from '../lib/utils';
 
 export default class ExceptionHandler {
-  private static catch(error: Exception, res: Response) {
-    const { message, statusCode } = error;
-    return res.status(statusCode).json({ message, status: statusCode });
-  }
-
-  /**
-   * Global error handler middleware.
-   * @param error error object
-   * @param req request
-   * @param res response
-   * @param next next middleware Function
-   */
   static handler(error: Error | Exception, req: Request, res: Response, next: NextFunction) {
-    if (error instanceof Exception) return this.catch(error, res);
+    if (error instanceof Exception) {
+      const { message, statusCode } = error;
+      return res.status(statusCode).json({ message, status: statusCode });
+    }
 
     if (error.name === 'MongoServerError') {
       if (error.message.split(' ')[0] == 'E11000') {

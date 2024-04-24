@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm';
 import {
   boolean,
   date,
+  integer,
   pgEnum,
   pgTable,
   text,
@@ -39,6 +40,9 @@ export const posts = pgTable('posts', {
   content: text('content').default('').notNull(),
   public: boolean('public').default(true).notNull(),
   tags: varchar('tags', { length: 16 }).array(4),
+  visits: integer("visits").default(0).notNull(),
+  words: integer("words").default(0).notNull(),
+  read_time: varchar("read_time").default("").notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   user_id: uuid('user_id')

@@ -51,6 +51,16 @@
         }
       }
     },
+    "/api/v1/health/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/users/": {
       "get": {
         "description": "",
@@ -62,32 +72,9 @@
       },
       "post": {
         "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "session": {
-                    "example": "any"
-                  }
-                }
-              }
-            }
           }
         }
       },
@@ -150,6 +137,25 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/users/stats": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }
@@ -216,6 +222,31 @@
       }
     },
     "/api/v1/posts/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
       "delete": {
         "description": "",
         "parameters": [
@@ -291,6 +322,26 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/posts/public/{slug}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }
@@ -439,6 +490,25 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/backup/": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }

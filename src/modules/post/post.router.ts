@@ -13,9 +13,10 @@ router
 
 router
   .route('/:id')
+  .get(authenticate, asyncWrapper(controller.findOneUserPost))
   .patch(authenticate, asyncWrapper(controller.update))
   .delete(authenticate, asyncWrapper(controller.delete));
 
-router.route('/:slug').get(asyncWrapper(controller.findAll));
+router.route('/public/:slug').get(asyncWrapper(controller.findOnePublicPost));
 
 export { router as post_router };

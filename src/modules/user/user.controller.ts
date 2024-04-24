@@ -1,34 +1,58 @@
-import * as bcrypt from 'bcrypt';
-import { isEmpty, isNotEmpty } from 'class-validator';
-import { randomUUID } from 'crypto';
-import * as drizzle from 'drizzle-orm';
-import type { Request, Response } from 'express';
-import { cloudinaryAPI } from '../../config/cloudinary.config';
-import { db } from '../../database/client.database';
-import { network_urls, user_profile_image, users } from '../../database/schema.database';
-import Exception from '../../lib/app-exception';
-import { CLOUD_USER_IMAGE_REPOSITORY } from '../../shared/constants';
-import { CreateUserSchema, UpdateUserSchema } from './user.schema';
+import * as bcrypt from "bcrypt";
+import { isEmpty, isNotEmpty } from "class-validator";
+import { randomUUID } from "crypto";
+import * as drizzle from "drizzle-orm";
+import type { Request, Response } from "express";
+import { cloudinaryAPI } from "../../config/cloudinary.config";
+import { db } from "../../database/client.database";
+import {
+  network_urls,
+  posts,
+  user_profile_image,
+  users
+} from "../../database/schema.database";
+import Exception from "../../lib/app-exception";
+import { CLOUD_USER_IMAGE_REPOSITORY } from "../../shared/constants";
+import { CreateUserSchema, UpdateUserSchema } from "./user.schema";
 
 export default class UserController {
+  async stats(req: Request, res: Response): Promise<void> {
+    const { session } = req.body;
+
+    const records = await db
+      .select({ _count: drizzle.count(posts.id) })
+      .from(posts)
+      .where(drizzle.eq(posts.user_id, session.id))
+      .groupBy(posts.id);
+
+    res.status(200).json([{ posts: records }]);
+  }
+
   async findOne(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
+
+    if (isEmpty(id)) throw new Exception("Invalid user id.", 400);
+
     const user = await db.query.users.findFirst({
       where: (table, fn) => fn.eq(table.id, id),
-      with: { network: true, profile_image: true },
-      columns: { password: false, role: false }
+      with: {
+        network: { columns: { user_id: false, id: false } },
+        profile_image: { columns: { url: true } }
+      },
+      columns: { password: false, role: false, email: false }
     });
-    if (!user) throw new Exception('User not found.', 404);
+    if (!user) throw new Exception("User not found.", 404);
     res.status(200).json({ ...user });
   }
 
   async findAll(req: Request, res: Response): Promise<void> {
     const { search, offset, limit, sort, fields } = req.query;
     const defaultColumns = { password: false, role: false };
+
     let requestedColumns: Record<string, boolean> | undefined = undefined;
-    if (isNotEmpty(fields) && typeof fields === 'string') {
+    if (isNotEmpty(fields) && typeof fields === "string") {
       requestedColumns = {
-        ...fields.split(',').reduce((acc, field) => {
+        ...fields.split(",").reduce((acc, field) => {
           if (!Object.keys(users._.columns).includes(field)) return { ...acc, [field]: true };
           return acc;
         }, {}),
@@ -37,23 +61,24 @@ export default class UserController {
     }
 
     const foundUsers = await db.query.users.findMany({
-      where: (table, fn) => {
-        const query = String(search);
-        if (!query) return undefined;
-        return fn.or(
-          fn.ilike(table.name, query),
-          fn.ilike(table.user_name, query),
-          fn.ilike(table.email, query)
-        );
-      },
+      where: isEmpty(search)
+        ? undefined
+        : (table, fn) => {
+            const query = String(search);
+            if (!query) return undefined;
+            return fn.or(
+              fn.ilike(table.name, `%${query}%`),
+              fn.ilike(table.user_name, `%${query}%`),
+              fn.ilike(table.email, `%${query}%`)
+            );
+          },
       with: { network: true, profile_image: true },
       orderBy: (table, fn) => {
-        const orderEnum = ['asc', 'desc'];
-        const [field, order] = String(sort).split(',');
-        if (!Object.keys(table).includes(field)) return undefined;
-        if (!orderEnum.includes(order)) return undefined;
-        //FIXME: don't know how to fix this yet
-        // @ts-expect-error(order may not be a function)
+        const orderEnum = ["asc", "desc"] as const;
+        const [field, order] = String(sort).split(",") as [keyof typeof table, "desc" | "asc"];
+
+        if (!Object.keys(table).includes(field)) return fn.asc(table.name);
+        if (!orderEnum.includes(order)) return fn.asc(table.name);
         return fn[order](table[field]);
       },
       columns: requestedColumns ?? defaultColumns,
@@ -70,7 +95,7 @@ export default class UserController {
       where: (table, fn) => fn.eq(table.email, email),
       columns: { email: true }
     });
-    if (user) throw new Exception('Account with provided password already exists.', 409);
+    if (user) throw new Exception("Account with provided password already exists.", 409);
 
     const hash = await bcrypt.hash(password, 10);
     const [record] = await db
@@ -91,7 +116,7 @@ export default class UserController {
       with: { profile_image: { columns: { public_id: true } } },
       columns: { id: true }
     });
-    if (!user) throw new Exception('User not found', 404);
+    if (!user) throw new Exception("User not found", 404);
 
     if (data.password) {
       data.password = await bcrypt.hash(data.password, 10);
@@ -113,7 +138,7 @@ export default class UserController {
     const { session } = req.body;
 
     //  delete profile image or posts cover images if they exist
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       const posts = await db.query.posts.findMany({
         where: (table, fn) => fn.eq(table.user_id, users.id),
         columns: { id: true },
@@ -150,7 +175,7 @@ export default class UserController {
       .where(drizzle.eq(users.id, session.id))
       .returning({ id: users.id });
 
-    if (!record) throw new Exception('Error while deleting user.', 400);
+    if (!record) throw new Exception("Error while deleting user.", 400);
     res.sendStatus(204);
   }
 
@@ -159,8 +184,8 @@ export default class UserController {
     user: { id: string; profile_image: { public_id: string } | null },
     profileImage?: unknown
   ) {
-    if (process.env.NODE_ENV !== 'production') {
-      if (typeof profileImage === 'string' && isNotEmpty(profileImage)) {
+    if (process.env.NODE_ENV !== "production") {
+      if (typeof profileImage === "string" && isNotEmpty(profileImage)) {
         if (!user.profile_image) {
           await db
             .insert(user_profile_image)
@@ -173,14 +198,14 @@ export default class UserController {
         }
       }
 
-      if (typeof profileImage === 'string' && isEmpty(profileImage)) {
+      if (typeof profileImage === "string" && isEmpty(profileImage)) {
         await db
           .delete(user_profile_image)
           .where(drizzle.eq(user_profile_image.user_id, userId));
       }
     } else {
       // if the profileImage exists, creates it (if doesn't yet) or updates
-      if (typeof profileImage === 'string' && isNotEmpty(profileImage)) {
+      if (typeof profileImage === "string" && isNotEmpty(profileImage)) {
         const result = await cloudinaryAPI.uploader.upload(profileImage, {
           public_id: user.profile_image?.public_id || undefined,
           folder: CLOUD_USER_IMAGE_REPOSITORY
@@ -200,7 +225,7 @@ export default class UserController {
         }
 
         // if the profileImage is empty, delete image on the cloud
-        if (typeof profileImage === 'string' && isEmpty(profileImage) && user.profile_image) {
+        if (typeof profileImage === "string" && isEmpty(profileImage) && user.profile_image) {
           await cloudinaryAPI.uploader.destroy(user.profile_image.public_id, {
             invalidate: true
           });

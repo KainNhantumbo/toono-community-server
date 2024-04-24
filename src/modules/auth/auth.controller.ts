@@ -79,10 +79,13 @@ export default class AuthController {
   async logout(req: Request, res: Response): Promise<void> {
     const token = req.cookies.USER_TOKEN;
     if (!token) throw new Exception('Invalid credentials.', 401);
-    res.status(204).clearCookie('USER_TOKEN', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
-    });
+    res
+      .status(204)
+      .clearCookie('USER_TOKEN', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      })
+      .json({ message: 'Success' });
   }
 }
