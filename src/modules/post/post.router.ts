@@ -6,9 +6,12 @@ import PostController from './post.controller';
 const router = Router();
 const controller = new PostController();
 
+router.route('/public').get(asyncWrapper(controller.findAllPublicPosts));
+router.route('/public/:slug').get(asyncWrapper(controller.findOnePublicPost));
+
 router
   .route('/')
-  .get(asyncWrapper(controller.findAll))
+  .get(authenticate, asyncWrapper(controller.findAllUserPosts))
   .post(authenticate, asyncWrapper(controller.create));
 
 router
@@ -17,6 +20,5 @@ router
   .patch(authenticate, asyncWrapper(controller.update))
   .delete(authenticate, asyncWrapper(controller.delete));
 
-router.route('/public/:slug').get(asyncWrapper(controller.findOnePublicPost));
 
 export { router as post_router };

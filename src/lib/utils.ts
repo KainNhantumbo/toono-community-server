@@ -1,7 +1,9 @@
-import type { NextFunction, Request, Response } from 'express';
-import * as jwt from 'jsonwebtoken';
-import winston from 'winston';
-import type { Server } from '../types';
+import sanitizeHtml from "sanitize-html";
+import { readingTime } from "reading-time-estimator";
+import type { NextFunction, Request, Response } from "express";
+import * as jwt from "jsonwebtoken";
+import winston from "winston";
+import type { Server } from "../types";
 
 /**
  * Wrapper function for global error handling.
@@ -44,7 +46,7 @@ export const logger: winston.Logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.colorize({ level: true }),
     winston.format.simple(),
-    winston.format.label({ label: 'SERVER' }),
+    winston.format.label({ label: "SERVER" }),
     winston.format.timestamp(),
     winston.format.printf(({ level, message, label, timestamp }) => {
       const time = new Date(timestamp).toLocaleString();
@@ -54,7 +56,24 @@ export const logger: winston.Logger = winston.createLogger({
   transports: [new winston.transports.Console(), new winston.transports.Http()]
 });
 
-export const generatePostSlug = (title: string) => {
-  const slug = title.toLowerCase().replaceAll('.', '').replaceAll(' ', '-');
-  return slug;
+export const readTime = (text: string) => {
+  return new Promise<{ minutes: number; words: number; text: string }>((resolve, reject) => {
+    if (typeof text !== "string") reject("The text input must be a string");
+    resolve(readingTime(text, 160, "en"));
+  });
 };
+
+export async function sanitizer(content: string): Promise<string> {
+  return new Promise((resolve) => {
+    const result = sanitizeHtml(content, {
+      enforceHtmlBoundary: false,
+      allowVulnerableTags: false,
+      disallowedTagsMode: "discard",
+      allowedAttributes: {
+        "*": ["class", "style", "contenteditable", "type", "data-*"]
+      },
+      nestingLimit: 50
+    });
+    resolve(result);
+  });
+}
