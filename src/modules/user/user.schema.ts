@@ -1,25 +1,25 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const CreateUserSchema = z.object({
   email: z
     .string({
-      invalid_type_error: 'Email must be a string',
-      required_error: 'Please provide your email.'
+      invalid_type_error: "Email must be a string",
+      required_error: "Please provide your email."
     })
-    .email({ message: 'Provide a valid email' }),
+    .email({ message: "Provide a valid email" }),
   name: z
     .string({
-      invalid_type_error: 'Name must be a string',
-      required_error: 'Please provide your name.'
+      invalid_type_error: "Name must be a string",
+      required_error: "Please provide your name."
     })
-    .min(5, { message: 'Name must have a minimum of 5 characters.' })
-    .max(64, { message: 'Name must have less than 64 characters.' }),
+    .min(5, { message: "Name must have a minimum of 5 characters." })
+    .max(64, { message: "Name must have less than 64 characters." }),
   password: z
     .string({
-      invalid_type_error: 'Password must be a string',
-      required_error: 'Please provide your password.'
+      invalid_type_error: "Password must be a string",
+      required_error: "Please provide your password."
     })
-    .min(8, 'Password must contain at least 8 characters')
+    .min(8, "Password must contain at least 8 characters")
 });
 
 export const UpdateUserSchema = z.object({
@@ -33,18 +33,20 @@ export const UpdateUserSchema = z.object({
   location: z.string().max(128).optional(),
   password: z
     .string({
-      invalid_type_error: 'Password must be a string',
-      required_error: 'Please provide your password.'
+      invalid_type_error: "Password must be a string"
     })
-    .min(8, 'Password must contain at least 8 characters')
-    .optional(),
-  birthday: z.coerce.string({ invalid_type_error: 'Invalid birthday value' }).optional(),
+    .optional()
+    .transform((data) => {
+      if (data && data.length >= 8) return data;
+      return undefined;
+    }),
+  birthday: z.string().datetime().nullable().optional(),
   profileImage: z.string().optional(),
   network: z.object({
-    website: z.string().url('Please insert valid url.').optional().default(''),
-    github: z.string().url('Please insert valid url.').optional().default(''),
-    facebook: z.string().url('Please insert valid url.').optional().default(''),
-    instagram: z.string().url('Please insert valid url.').optional().default(''),
-    linkedin: z.string().url('Please insert valid url.').optional().default('')
+    website: z.string().optional(),
+    github: z.string().optional(),
+    facebook: z.string().optional(),
+    instagram: z.string().optional(),
+    linkedin: z.string().optional()
   })
 });

@@ -119,6 +119,9 @@ export default class UserController {
     if (!user) throw new Exception("User not found", 404);
 
     if (data.password) {
+      if (data.password.length < 8) {
+        throw new Exception("Password must have at least 8 characters", 400);
+      }
       data.password = await bcrypt.hash(data.password, 10);
     }
 
