@@ -12,7 +12,7 @@ import { CLOUD_POSTS_IMAGE_REPOSITORY } from "../../shared/constants";
 import { createPostSchema, updatePostSchema } from "./post.schema";
 import { sanitizer } from "../../lib/utils";
 
-const columns = ["title", "slug", "read_time", "words", "tags", "created_at", "updated_at"];
+const columns = ["title", "slug", "read_time", "words", 'visits', "tags", "created_at", "updated_at"];
 
 export default class PostController {
   async findOnePublicPost(req: Request, res: Response): Promise<void> {
@@ -22,7 +22,11 @@ export default class PostController {
       with: {
         claps: true,
         coverImage: { columns: { url: true } },
-        user: { columns: { name: true, user_name: true } }
+        user: {
+          columns: { user_name: true, name: true, id: true },
+          with: { profile_image: { columns: { url: true } } }
+        },
+        comments: { columns: { id: true } }
       }
     });
 
@@ -49,7 +53,7 @@ export default class PostController {
 
   async findAllUserPosts(req: Request, res: Response): Promise<void> {
     const { fields } = req.query;
-    let requestedColumns: Record<string, boolean> | undefined = undefined;
+    let requestedColumns: Record<string, boolean> | undefined = {};
 
     if (isNotEmpty(fields) && typeof fields === "string") {
       requestedColumns = fields.split(",").reduce((acc, field) => {
@@ -58,15 +62,15 @@ export default class PostController {
       }, {});
     }
     const records = await db.query.posts.findMany({
-      orderBy: (table, fn) => fn.asc(table.title),
-      columns: requestedColumns
+      orderBy: (table, fn) => fn.desc(table.updated_at),
+      columns: { ...requestedColumns, public: true }
     });
     res.status(200).json(records);
   }
 
   async findAllPublicPosts(req: Request, res: Response): Promise<void> {
     const { search, offset, limit, sort, fields, userId } = req.query;
-    let requestedColumns: Record<string, boolean> | undefined = undefined;
+    let requestedColumns: Record<string, boolean> | undefined = {};
 
     if (isNotEmpty(fields) && typeof fields === "string") {
       requestedColumns = fields.split(",").reduce((acc, field) => {
@@ -76,36 +80,38 @@ export default class PostController {
     }
 
     const records = await db.query.posts.findMany({
-      where: isEmpty(search)
-        ? (table, fn) => fn.eq(table.public, true)
-        : (table, fn) => {
-            const query = String(search);
-            const defaultSearch = fn.or(
-              fn.ilike(table.title, `%${query}%`),
-              fn.ilike(table.content, `%${query}%`),
-              fn.ilike(table.tags, `%${query}%`),
-              fn.eq(table.public, true)
-            );
+      where:
+        typeof search !== "string" || search === ""
+          ? (table, fn) => fn.eq(table.public, true)
+          : (table, fn) => {
+              const arg = String(search);
+              const query = fn.or(
+                fn.ilike(table.title, `%${arg}%`),
+                fn.ilike(table.content, `%${arg}%`),
+                fn.eq(table.public, true)
+              );
 
-            if (typeof userId === "string" && isUUID(userId))
-              return fn.and(fn.eq(table.user_id, userId), defaultSearch);
-            return defaultSearch;
-          },
+              if (typeof userId === "string" && isUUID(userId))
+                return fn.and(fn.eq(table.user_id, userId), query);
+              return query;
+            },
       with: {
         claps: { columns: { id: true } },
         coverImage: { columns: { url: true } },
         user: {
           columns: { name: true, id: true },
           with: { profile_image: { columns: { url: true } } }
-        }
+        },
+        comments: { columns: { id: true } }
       },
       orderBy: (table, fn) => {
-        const orderEnum = ["asc", "desc"] as const;
-        const [field, order] = String(sort).split(",") as [keyof typeof table, "desc" | "asc"];
-
-        if (!Object.keys(table).includes(field)) return fn.asc(table.title);
-        if (!orderEnum.includes(order)) return fn.asc(table.title);
-        return fn[order](table[field]);
+        const option = String(sort);
+        switch (option) {
+          case "popular":
+            return fn.asc(table.visits);
+          default:
+            return fn.desc(table.created_at);
+        }
       },
       columns: requestedColumns,
       offset: offset ? +offset : undefined,

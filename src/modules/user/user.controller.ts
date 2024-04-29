@@ -37,7 +37,32 @@ export default class UserController {
       where: (table, fn) => fn.eq(table.id, id),
       with: {
         network: { columns: { user_id: false, id: false } },
-        profile_image: { columns: { url: true } }
+        profile_image: { columns: { url: true } },
+        posts: {
+          where: (table, fn) => fn.eq(table.public, true),
+          columns: {
+            id: true,
+            title: true,
+            slug: true,
+            read_time: true,
+            words: true,
+            tags: true,
+            updated_at: true,
+            created_at: true
+          },
+          with: {
+            claps: { columns: { id: true } },
+            coverImage: { columns: { url: true } },
+            user: {
+              columns: { name: true, id: true },
+              with: { profile_image: { columns: { url: true } } }
+            },
+            comments: { columns: { id: true } }
+          },
+          orderBy: (table, fn) => {
+            return fn.desc(table.created_at);
+          }
+        }
       },
       columns: { password: false, role: false, email: false }
     });
