@@ -13,9 +13,9 @@ export default class BackupController {
     const { type } = req.params;
     const _CSV = "csv";
     const _JSON = "json";
+    const _TEXT = "text";
 
     const temp_folder = path.join(__dirname, "..", "..", "temp");
-    const filename = `USER [${session.id}] [${new Date().toISOString()}].json`;
 
     const posts = await db.query.posts.findMany({
       where: (table, fn) => fn.eq(table.user_id, session.id),
@@ -28,6 +28,53 @@ export default class BackupController {
 
     if (posts.length < 1) throw new Exception("No posts to export.", 404);
 
+    if (!existsSync(temp_folder)) await fs.mkdir(temp_folder);
+    // delete any other files in this directory
+    await deleteFilesInDirectory(temp_folder);
+    let filename: string;
+    let data: string;
+
+    switch (type) {
+      case _TEXT:
+        filename = `${session.id}-${new Date().toISOString()}.txt`;
+        data = posts.reduce((acc, curr) => {
+          return acc.concat(
+            `\n-----------------------\nPost ID:\t${curr.id}\n\nTitle:\t${curr.title}\n\nContent:\t${curr.content}\n\n-----------------------\n`
+          );
+        }, ``);
+        await fs.writeFile(path.join(temp_folder, filename), data, { encoding: "utf8" });
+
+        return res.download(path.join(temp_folder, filename), (error) => {
+          if (error) {
+            console.error("Download failed: \n\t\t", error);
+            res.status(500).json({
+              code: "Internal Server Error",
+              status: 500,
+              message: "Download failed."
+            });
+          }
+        });
+
+      case _JSON:
+        filename = `${session.id}-${new Date().toISOString()}.json`;
+        data = JSON.stringify(posts, null, 2);
+        await fs.writeFile(path.join(temp_folder, filename), data, { encoding: "utf8" });
+
+        return res.download(path.join(temp_folder, filename), (error) => {
+          if (error) {
+            console.error("Download failed: \n\t\t", error);
+            res.status(500).json({
+              code: "Internal Server Error",
+              status: 500,
+              message: "Download failed."
+            });
+          }
+        });
+
+      default:
+        throw new Exception("Invalid file type.", 400);
+    }
+
     if (type === _CSV) {
       // const worksheet = xlsx.utils.json_to_sheet(posts);
       // const workbook = xlsx.utils.book_new();
@@ -36,28 +83,5 @@ export default class BackupController {
       // await xlsx.write(workbook, { compression: false });
       return res.status(200).json({});
     }
-
-    if (type === _JSON) {
-      const data = JSON.stringify(posts, null, 2);
-
-      if (!existsSync(temp_folder)) await fs.mkdir(temp_folder);
-      await deleteFilesInDirectory(temp_folder)
-      await fs.writeFile(path.join(temp_folder, filename), data, { encoding: "utf8" });
-
-      res.download(path.join(temp_folder, filename), (error) => {
-        if (error) {
-          console.error("Download failed: \n\t\t", error);
-          res.status(500).json({
-            code: "Internal Server Error",
-            status: 500,
-            message: "Download failed."
-          });
-        }
-      });
-      return;
-    }
-
-    throw new Exception("Invalid file type.", 400);
   }
 }
-
