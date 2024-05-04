@@ -365,13 +365,14 @@
         }
       }
     },
-    "/api/v1/comments/": {
+    "/api/v1/comments/public/{postId}": {
       "get": {
         "description": "",
         "parameters": [
           {
-            "name": "authorization",
-            "in": "header",
+            "name": "postId",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -462,22 +463,12 @@
             }
           }
         }
-      }
-    },
-    "/api/v1/comments/{postId}/{commentId}": {
+      },
       "patch": {
         "description": "",
         "parameters": [
           {
-            "name": "postId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "commentId",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
@@ -513,10 +504,18 @@
         }
       }
     },
-    "/api/v1/backup/": {
+    "/api/v1/backup/{type}": {
       "get": {
         "description": "",
         "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "authorization",
             "in": "header",

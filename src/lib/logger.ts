@@ -1,9 +1,9 @@
-import type { NextFunction, Request, Response } from 'express';
-import { randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { appendFile, mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
-import { Server } from '../types';
+import type { NextFunction, Request, Response } from "express";
+import { randomUUID } from "node:crypto";
+import { existsSync } from "node:fs";
+import { appendFile, mkdir } from "node:fs/promises";
+import { join } from "node:path";
+import { Server } from "../types";
 
 export default class EventLogger {
   private readonly date: string = new Date().toISOString();
@@ -18,10 +18,10 @@ export default class EventLogger {
   public async register() {
     const LOG = `${this.date}\t${randomUUID()}\t${this.message}\n\n\n`;
     try {
-      if (!existsSync(join(__dirname, '..', 'logs'))) {
-        await mkdir(join(__dirname, '..', 'logs'));
+      if (!existsSync(join(__dirname, "..", "logs"))) {
+        await mkdir(join(__dirname, "..", "logs"));
       }
-      await appendFile(join(__dirname, '..', 'logs', this.fileName), LOG);
+      await appendFile(join(__dirname, "..", "logs", this.fileName), LOG);
     } catch (err) {
       console.error(err);
     }

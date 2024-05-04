@@ -1,10 +1,10 @@
-import expressListRoutes from 'express-list-routes';
-import { join } from 'node:path';
-import Package from '../../../package.json';
-import { docsGenerator, docsSchema } from '../../config/swagger.config';
-import { client as databaseClient } from '../../database/client.database';
-import { logger } from '../../lib/utils';
-import type { Server } from '../../types';
+import expressListRoutes from "express-list-routes";
+import { join } from "node:path";
+import Package from "../../../package.json";
+import { docsGenerator, docsSchema } from "../../config/swagger.config";
+import { client as databaseClient } from "../../database/client.database";
+import { logger } from "../../lib/utils";
+import type { Server } from "../../types";
 
 export default class Bootstrap {
   public readonly props: Server.AppProps;
@@ -28,8 +28,8 @@ export default class Bootstrap {
 
   private async generateDocs() {
     try {
-      const output = join(__dirname, '..', '..', 'docs', 'swagger-spec.doc.json');
-      const endpoints = [join(__dirname, '..', '..', 'index'), join(__dirname, 'app.service')];
+      const output = join(__dirname, "..", "..", "docs", "swagger-spec.doc.json");
+      const endpoints = [join(__dirname, "..", "..", "index"), join(__dirname, "app.service")];
       await docsGenerator(output, endpoints, docsSchema);
     } catch (error) {
       logger.error(error);
@@ -45,7 +45,7 @@ export default class Bootstrap {
       spacer: 8
     });
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       logger.warn(`Application in Development Mode.`);
       logger.info(`Server Listening on: http://localhost:${this.props.port}`);
       logger.info(`Server Docs on: http://localhost:${this.props.port}/api-docs`);
@@ -57,12 +57,12 @@ export default class Bootstrap {
   }
 
   private close(server: Server.CurrentServer) {
-    const signals = ['SIGINT', 'SIGTERM'] as const;
+    const signals = ["SIGINT", "SIGTERM"] as const;
     try {
       for (const signal of signals) {
         process.once(signal, async () => {
           await databaseClient.end();
-          server.close(() => logger.info('Closing HTTP Server'));
+          server.close(() => logger.info("Closing HTTP Server"));
         });
       }
     } catch (error) {

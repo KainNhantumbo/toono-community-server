@@ -6,6 +6,7 @@ dist
 .vscode
 # log files
 /src/logs/**
+/src/temp/**
 /src/cache/**
 debug.log
 *.log

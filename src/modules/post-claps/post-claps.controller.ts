@@ -1,8 +1,8 @@
-import * as drizzle from 'drizzle-orm';
-import type { Request, Response } from 'express';
-import { db } from '../../database/client.database';
-import { claps } from '../../database/schema.database';
-import Exception from '../../lib/app-exception';
+import * as drizzle from "drizzle-orm";
+import type { Request, Response } from "express";
+import { db } from "../../database/client.database";
+import { claps } from "../../database/schema.database";
+import Exception from "../../lib/app-exception";
 
 export default class PostClapsController {
   async create(req: Request, res: Response): Promise<void> {
@@ -13,7 +13,7 @@ export default class PostClapsController {
       where: (table, fn) =>
         fn.and(fn.eq(table.user_id, session.id), fn.eq(table.post_id, postId))
     });
-    if (clapRecord) throw new Exception('Clap already added.', 409);
+    if (clapRecord) throw new Exception("Clap already added.", 400);
 
     await db.insert(claps).values({ user_id: session.id, post_id: postId });
     res.sendStatus(201);
@@ -27,7 +27,7 @@ export default class PostClapsController {
       where: (table, fn) =>
         fn.and(fn.eq(table.user_id, session.id), fn.eq(table.post_id, postId))
     });
-    if (!clapRecord) throw new Exception('Clap not found.', 404);
+    if (!clapRecord) throw new Exception("Clap not found.", 404);
 
     await db
       .delete(claps)

@@ -1,12 +1,17 @@
-import { Router } from 'express';
+import { Router } from "express";
+import { logger } from "../../lib/utils";
 
 const router = Router();
 
-router.route('*').all((req, res) => {
+router.route("*").all((req, res) => {
+  if (process.env.NODE_ENV === "development") {
+    logger.error(`The requested route [${req.url}] was not found.`);
+  }
+
   res.status(404).json({
     code: 404,
-    status: 'Rota não encontrada.',
-    message: 'Rota não encontrada, verifique a url e tente novamente.'
+    status: "Route not found.",
+    message: "Route not found, check and try again."
   });
 });
 

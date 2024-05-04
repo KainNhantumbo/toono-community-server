@@ -1,9 +1,9 @@
-import type { NextFunction, Request, Response } from 'express';
-import { JsonWebTokenError } from 'jsonwebtoken';
-import { ZodError } from 'zod';
-import Exception from '../lib/app-exception';
-import Logger from '../lib/logger';
-import { logger as consoleLogger } from '../lib/utils';
+import type { NextFunction, Request, Response } from "express";
+import { JsonWebTokenError } from "jsonwebtoken";
+import { ZodError } from "zod";
+import Exception from "../lib/app-exception";
+import Logger from "../lib/logger";
+import { logger as consoleLogger } from "../lib/utils";
 
 export default class ExceptionHandler {
   static handler(error: Error | Exception, req: Request, res: Response, next: NextFunction) {
@@ -12,41 +12,41 @@ export default class ExceptionHandler {
       return res.status(statusCode).json({ message, status: statusCode });
     }
 
-    if (error.name === 'MongoServerError') {
-      if (error.message.split(' ')[0] == 'E11000') {
+    if (error.name === "MongoServerError") {
+      if (error.message.split(" ")[0] == "E11000") {
         return res.status(409).json({
-          code: 'Conflict Error',
+          code: "Conflict Error",
           status: 409,
           message:
-            'Data Conflict Error: Some of the given information already exists on the server.'
+            "Data Conflict Error: Some of the given information already exists on the server."
         });
       }
     }
 
-    if (error.name === 'PayloadTooLargeError')
+    if (error.name === "PayloadTooLargeError")
       return res.status(413).json({
-        code: 'PayloadTooLargeError',
+        code: "PayloadTooLargeError",
         status: 413,
-        message: 'The file chosen is too large'
+        message: "The file chosen is too large"
       });
 
     if (error instanceof JsonWebTokenError)
       return res.status(401).json({
-        code: 'Authorization Error',
+        code: "Authorization Error",
         status: 401,
-        message: 'Unauthorized: invalid credentials.'
+        message: "Unauthorized: invalid credentials."
       });
 
     if (error instanceof ZodError)
       return res.status(401).json({
-        code: 'Bad Request Error',
+        code: "Bad Request Error",
         status: 400,
         message: error.errors
           .map((error) => error.message)
-          .reduce((value: string, acc) => value.concat(acc).toString(), '')
+          .reduce((value: string, acc) => value.concat(acc).toString(), "")
       });
 
-    if (error.name === 'UploadApiErrorResponse') {
+    if (error.name === "UploadApiErrorResponse") {
       return res.status(400).json({
         code: error.name,
         status: 400,
@@ -54,34 +54,34 @@ export default class ExceptionHandler {
       });
     }
 
-    if (error.name === 'ValidationError') {
+    if (error.name === "ValidationError") {
       const errorMessage = Object.values((error as any).errors)
         .map((obj: any) => obj.message)
-        .join('. ')
-        .concat('.');
+        .join(". ")
+        .concat(".");
       return res.status(400).json({
-        code: 'Data Validation Error',
+        code: "Data Validation Error",
         status: 400,
         message: errorMessage
       });
     }
 
-    if (error.name === 'CastError') {
+    if (error.name === "CastError") {
       return res.status(400).json({
-        code: 'Malformed Data Error',
+        code: "Malformed Data Error",
         status: 400,
-        message: 'Some of the data sent to the server was malformed.'
+        message: "Some of the data sent to the server was malformed."
       });
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       if (error instanceof Error) {
         consoleLogger.error(
           `An uncaught error has ocurred:\n${error.message}\n\t${error.stack}\n`
         );
         const logger = new Logger({
           message: error.stack ?? error.message,
-          fileName: 'uncaught-errors.log'
+          fileName: "uncaught-errors.log"
         });
         logger.register();
       } else {
@@ -90,9 +90,9 @@ export default class ExceptionHandler {
     }
 
     res.status(500).json({
-      code: 'Internal Server Error',
+      code: "Internal Server Error",
       status: 500,
-      message: 'An error occurred while processing your request. Please try again later.'
+      message: "An error occurred while processing your request. Please try again later."
     });
 
     next();

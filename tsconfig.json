@@ -15,8 +15,11 @@
     "strict": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": false,
-    "typeRoots": ["./node_modules/@types", "src/types/**/*.d.ts"]
+    "typeRoots": ["src/types/**/*.d.ts"]
   },
-  "exclude": ["node_modules"],
-  "include": ["src/*", "src/types/env.d.ts", "src/types/index.d.ts"]
+  "exclude": ["**/node_modules", "node_modules/**/*"],
+  "include": ["src/*", "src/types/env.d.ts", "src/types/index.d.ts"],
+  "typeAcquisition": {
+    "exclude": ["jest", "mocha", "drizzle"]
+  }
 }

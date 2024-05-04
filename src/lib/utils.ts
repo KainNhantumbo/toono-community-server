@@ -1,3 +1,5 @@
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import sanitizeHtml from "sanitize-html";
 import { readingTime } from "reading-time-estimator";
 import type { NextFunction, Request, Response } from "express";
@@ -76,4 +78,12 @@ export async function sanitizer(content: string): Promise<string> {
     });
     resolve(result);
   });
+}
+
+export async function deleteFilesInDirectory(directoryPath: string) {
+  const files = await fs.readdir(directoryPath);
+  for (const file of files) {
+    const filePath = path.join(directoryPath, file);
+    await fs.unlink(filePath);
+  }
 }

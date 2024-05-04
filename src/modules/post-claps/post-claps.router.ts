@@ -1,13 +1,13 @@
-import PostClapsController from './post-claps.controller';
-import { asyncWrapper } from '../../lib/utils';
-import { authenticate } from '../../middleware/auth.middleware';
-import { Router } from 'express';
+import PostClapsController from "./post-claps.controller";
+import { asyncWrapper } from "../../lib/utils";
+import { authenticate } from "../../middleware/auth.middleware";
+import { Router } from "express";
 
 const router = Router();
 const controller = new PostClapsController();
 
 router
-  .route('/:id')
+  .route("/:id")
   .post(authenticate, asyncWrapper(controller.create))
   .delete(authenticate, asyncWrapper(controller.delete));
 

@@ -98,7 +98,7 @@ export const claps = pgTable("claps", {
 export const comment = pgTable("comment", {
   id: uuid("id").primaryKey().defaultRandom().notNull(),
   content: varchar("content", { length: 512 }).notNull(),
-  parent_comment: uuid("parent_comment"),
+  reply_comment: uuid("reply_comment"),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
   user_id: uuid("user_id")
@@ -118,15 +118,19 @@ export const userRelations = relations(users, ({ one, many }) => ({
 
 // self relation
 export const commentsRelations = relations(comment, ({ one, many }) => ({
-  sub_comments: many(comment, { relationName: "subComments" }),
-  parent_comment: one(comment, {
-    relationName: "subComments",
-    fields: [comment.parent_comment],
+  children: many(comment, { relationName: "subComments" }),
+  reply: one(comment, {
+    relationName: "replyComment",
+    fields: [comment.reply_comment],
     references: [comment.id]
   }),
-  post_id: one(posts, {
+  post: one(posts, {
     fields: [comment.post_id],
     references: [posts.id]
+  }),
+  user: one(users, {
+    fields: [comment.user_id],
+    references: [users.id]
   })
 }));
 

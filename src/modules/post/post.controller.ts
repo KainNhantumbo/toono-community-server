@@ -12,7 +12,16 @@ import { CLOUD_POSTS_IMAGE_REPOSITORY } from "../../shared/constants";
 import { createPostSchema, updatePostSchema } from "./post.schema";
 import { sanitizer } from "../../lib/utils";
 
-const columns = ["title", "slug", "read_time", "words", 'visits', "tags", "created_at", "updated_at"];
+const columns = [
+  "title",
+  "slug",
+  "read_time",
+  "words",
+  "visits",
+  "tags",
+  "created_at",
+  "updated_at"
+];
 
 export default class PostController {
   async findOnePublicPost(req: Request, res: Response): Promise<void> {
@@ -108,7 +117,7 @@ export default class PostController {
         const option = String(sort);
         switch (option) {
           case "popular":
-            return fn.asc(table.visits);
+            return fn.desc(table.visits);
           default:
             return fn.desc(table.created_at);
         }
