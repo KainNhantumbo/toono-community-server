@@ -52,11 +52,6 @@ export default class UserController {
           },
           with: {
             claps: { columns: { id: true } },
-            coverImage: { columns: { url: true } },
-            user: {
-              columns: { name: true, id: true },
-              with: { profile_image: { columns: { url: true } } }
-            },
             comments: { columns: { id: true } }
           },
           orderBy: (table, fn) => {
