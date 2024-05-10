@@ -38,7 +38,6 @@
     "helmet": "^7.1.0",
     "i": "^0.3.7",
     "jsonwebtoken": "^9.0.2",
-    "npm": "^10.5.2",
     "postgres": "^3.4.4",
     "reading-time-estimator": "^1.11.0",
     "sanitize-html": "^2.13.0",
