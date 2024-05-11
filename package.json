@@ -10,9 +10,9 @@
     "url": "https://codenut-dev.vercel.app"
   },
   "scripts": {
-    "start": "npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts && tsx src/database/migrate.database.ts && tsc && node dist/index.js",
+    "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts && tsx src/database/migrate.database.ts && tsc",
     "db:migrate": "tsx src/database/migrate.database.ts",
     "db:generate": "npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts",
     "db:drop": "npx drizzle-kit drop --config ./src/config/drizzle.config.ts",
