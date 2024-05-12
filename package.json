@@ -12,7 +12,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts && tsx src/database/migrate.database.ts && tsc",
+    "build": "tsc && npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts && tsx src/database/migrate.database.ts",
     "db:migrate": "tsx src/database/migrate.database.ts",
     "db:generate": "npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts",
     "db:drop": "npx drizzle-kit drop --config ./src/config/drizzle.config.ts",

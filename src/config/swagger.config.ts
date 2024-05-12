@@ -5,8 +5,8 @@ export const docsGenerator = swaggerAutoGenerator({ openapi: "3.0.0" });
 export const docsSchema = {
   openapi: "3.0.0",
   info: {
-    title: "BooksAPI",
-    description: "Books API with MySQL",
+    title: "ToonoAPI",
+    description: "Toono Community Server API with PostgreSQL DB",
     version: "1.0.0",
     contact: {
       name: "Kain Nhantumbo",
