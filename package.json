@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Toono Dev Community API",
   "main": "./dist/index.js",
-  "url": "",
+  "url": "https://splendid-flannel-nightgown-calf.cyclic.app",
   "author": {
     "name": "Kain Nhantumbo",
     "email": "nhantumbok@gmail.com",
