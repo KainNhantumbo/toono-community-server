@@ -16,3 +16,4 @@ tsconfig.tsbuildinfo
 
 
 /src/database/migrations/**
+.vercel
