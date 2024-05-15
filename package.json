@@ -9,6 +9,9 @@
     "email": "nhantumbok@gmail.com",
     "url": "https://codenut-dev.vercel.app"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",

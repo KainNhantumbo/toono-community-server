@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "buildCommand": "tsc && npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts && tsx src/database/migrate.database.ts",
+  "builds": [{ "src": "dist/index.js", "use": "@vercel/node" }],
+  "routes": [{ "src": "dist/(.*)", "dest": "/" }]
+}
