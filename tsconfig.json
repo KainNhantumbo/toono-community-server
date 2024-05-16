@@ -14,7 +14,7 @@
     "isolatedModules": true,
     "strict": true,
     "skipDefaultLibCheck": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "noUnusedLocals": true,
     "typeRoots": ["src/types/**/*.d.ts"]
   },
