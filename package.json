@@ -15,7 +15,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc && npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts && tsx src/database/migrate.database.ts",
+    "build": "rimraf ./dist && tsc && npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts && tsx src/database/migrate.database.ts",
     "db:migrate": "tsx src/database/migrate.database.ts",
     "db:generate": "npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts",
     "db:drop": "npx drizzle-kit drop --config ./src/config/drizzle.config.ts",
@@ -42,6 +42,7 @@
     "jsonwebtoken": "^9.0.2",
     "postgres": "^3.4.4",
     "reading-time-estimator": "^1.11.0",
+    "rimraf": "^5.0.7",
     "sanitize-html": "^2.13.0",
     "slugify": "^1.6.6",
     "swagger-ui-express": "^5.0.0",
