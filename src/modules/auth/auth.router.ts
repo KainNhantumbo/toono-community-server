@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { asyncWrapper } from "../../lib/utils";
 import AuthController from "./auth.controller";
-import OauthController from "./auth.oauth.controller"
+import OauthController from "./auth.oauth.controller";
 
 const router = Router();
 const controller = new AuthController();

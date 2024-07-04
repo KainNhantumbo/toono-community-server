@@ -1,8 +1,9 @@
-#  🌟 Toono Community API  (Node.JS + PostgreSQL DB API)
+# 🌟 Toono Community API (Node.JS + PostgreSQL DB API)
 
 This REST API server application is built to serve its endpoints to Toono Community platform ([see the source code here](https://github.com/KainNhantumbo/toono-community-app)), which is currently under active development.
 
 ## 🤩 Motivation
+
 Find this [here](https://github.com/KainNhantumbo/toono-community-app/#Motivation) to avoid repeating myself.
 
 ## 🌠 Project status
@@ -45,6 +46,7 @@ DATABASE_URI=
 REFRESH_TOKEN=
 ACCESS_TOKEN=
 ```
+
 Then, in the project directory, you can run in terminal:
 
 ```bash
@@ -66,12 +68,12 @@ npm run start
 
 Builds and starts the server in production.
 
-## ☘️  Find me!
+## ☘️ Find me!
 
-E-mail: [nhantumbok@gmail.com](nhantumbok@gmail.com 'Send an e-mail')\
-Github: [https://github.com/KainNhantumbo](https://github.com/KainNhantumbo 'See my github profile')\
-Portfolio: [https://codenut-dev.vercel.app](https://codenut-dev.vercel.app 'See my portfolio website')\
-My Blog: [https://codenut-dev.vercel.app/blog](https://codenut-dev.vercel.app/blog 'Visit my blog site')
+E-mail: [nhantumbok@gmail.com](nhantumbok@gmail.com "Send an e-mail")\
+Github: [https://github.com/KainNhantumbo](https://github.com/KainNhantumbo "See my github profile")\
+Portfolio: [https://codenut-dev.vercel.app](https://codenut-dev.vercel.app "See my portfolio website")\
+My Blog: [https://codenut-dev.vercel.app/blog](https://codenut-dev.vercel.app/blog "Visit my blog site")
 
 #### If you like this project, let me know by leaving a star on this repository so I can keep improving this app.😊😘
 
