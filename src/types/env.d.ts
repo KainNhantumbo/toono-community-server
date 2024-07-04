@@ -12,6 +12,8 @@ declare global {
       CLOUDINARY_API_KEY?: string;
       CLOUDINARY_API_SECRET?: string;
       DATABASE_URL?: string;
+      GITHUB_SECRET_ID?: string;
+      GITHUB_CLIENT_ID?: string;
     }
   }
 }

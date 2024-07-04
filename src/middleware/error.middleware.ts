@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import Exception from "../lib/app-exception";
 import Logger from "../lib/logger";
 import { logger as consoleLogger } from "../lib/utils";
+import { AxiosError } from "axios";
 
 export default class ExceptionHandler {
   static handler(error: Error | Exception, req: Request, res: Response, next: NextFunction) {
@@ -71,6 +72,14 @@ export default class ExceptionHandler {
         code: "Malformed Data Error",
         status: 400,
         message: "Some of the data sent to the server was malformed."
+      });
+    }
+
+    if (error instanceof AxiosError) {
+      return res.status(500).json({
+        code: error.code,
+        status: error.status || 500,
+        message: error.message
       });
     }
 
