@@ -52,8 +52,9 @@ export default class PostController {
 
   async findOneUserPost(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
+    const { session } = req.body;
     const post = await db.query.posts.findFirst({
-      where: (table, fn) => fn.eq(table.id, id),
+      where: (table, fn) => fn.and(fn.eq(table.id, id), fn.eq(table.user_id, session.id)),
       with: { coverImage: { columns: { url: true } } }
     });
     if (!post) throw new Exception("Post not found.", 404);
@@ -62,6 +63,7 @@ export default class PostController {
 
   async findAllUserPosts(req: Request, res: Response): Promise<void> {
     const { fields } = req.query;
+    const { session } = req.body;
     let requestedColumns: Record<string, boolean> | undefined = {};
 
     if (isNotEmpty(fields) && typeof fields === "string") {
@@ -71,6 +73,7 @@ export default class PostController {
       }, {});
     }
     const records = await db.query.posts.findMany({
+      where: (table, fn) => fn.eq(table.user_id, session.id),
       orderBy: (table, fn) => fn.desc(table.updated_at),
       columns: { ...requestedColumns, public: true }
     });
@@ -157,13 +160,14 @@ export default class PostController {
       })
       .returning({ id: posts.id });
 
-    await coverImageProcessor(post.id, coverImage);
+    await coverImageHandler(post.id, coverImage);
     res.sendStatus(201);
   }
 
   async update(req: Request, res: Response): Promise<void> {
     const { id: postId } = req.params;
-    const { coverImage, content, ...data } = await updatePostSchema.parseAsync(req.body);
+    const { session, ...rest } = req.body;
+    const { coverImage, content, ...data } = await updatePostSchema.parseAsync(rest);
 
     const cleanContent = await sanitizer(content);
     const { words: wordCount, text: readingTimeString } = await readTime(
@@ -171,7 +175,7 @@ export default class PostController {
     );
 
     const post = await db.query.posts.findFirst({
-      where: (table, fn) => fn.eq(table.id, postId),
+      where: (table, fn) => fn.and(fn.eq(table.id, postId), fn.eq(table.user_id, session.id)),
       columns: { id: true }
     });
     if (!post) throw new Exception("Post not found.", 404);
@@ -179,14 +183,15 @@ export default class PostController {
     await db
       .update(posts)
       .set({ ...data, words: wordCount, read_time: readingTimeString, content: cleanContent })
-      .where(drizzle.eq(posts.id, postId));
+      .where(drizzle.and(drizzle.eq(posts.id, postId), drizzle.eq(posts.user_id, session.id)));
 
-    await coverImageProcessor(postId, coverImage);
+    await coverImageHandler(postId, coverImage);
     res.sendStatus(200);
   }
 
   async delete(req: Request, res: Response): Promise<void> {
     const { id: postId } = req.params;
+    const { session } = req.body;
     const post = await db.query.posts.findFirst({
       where: (table, fn) => fn.eq(table.id, postId),
       columns: { id: true },
@@ -201,7 +206,7 @@ export default class PostController {
 
     const [record] = await db
       .delete(posts)
-      .where(drizzle.eq(posts.id, postId))
+      .where(drizzle.and(drizzle.eq(posts.id, postId), drizzle.eq(posts.user_id, session.id)))
       .returning({ id: posts.id });
 
     if (!record) throw new Exception("Error while deleting your post.", 400);
@@ -209,7 +214,7 @@ export default class PostController {
   }
 }
 
-async function coverImageProcessor(postId: string, coverImage: unknown) {
+async function coverImageHandler(postId: string, coverImage: unknown) {
   const foundImage = await db.query.post_cover_image.findFirst({
     where: (table, fn) => fn.eq(table.post_id, postId)
   });
