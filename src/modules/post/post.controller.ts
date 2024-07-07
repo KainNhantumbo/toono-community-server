@@ -97,9 +97,8 @@ export default class PostController {
           ? (table, fn) => fn.eq(table.public, true)
           : (table, fn) => {
               const arg = String(search);
-              const query = fn.or(
-                fn.ilike(table.title, `%${arg}%`),
-                fn.ilike(table.content, `%${arg}%`),
+              const query = fn.and(
+                fn.or(fn.ilike(table.title, `%${arg}%`), fn.ilike(table.content, `%${arg}%`)),
                 fn.eq(table.public, true)
               );
 

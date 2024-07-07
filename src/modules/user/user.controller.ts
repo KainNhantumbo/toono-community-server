@@ -152,7 +152,7 @@ export default class UserController {
         .where(drizzle.eq(network_urls.user_id, session.id));
     }
 
-    await profileImageProcessor(session, user, profileImage);
+    await profileImageHandler(session, user, profileImage);
     await db.update(users).set(data).where(drizzle.eq(users.id, session.id));
     res.sendStatus(200);
   }
@@ -203,7 +203,7 @@ export default class UserController {
   }
 }
 
-async function profileImageProcessor(
+async function profileImageHandler(
   { id: userId }: { id: string },
   user: { id: string; profile_image: { public_id: string } | null },
   profileImage?: unknown
