@@ -2,7 +2,7 @@
   "name": "toono-dev-server",
   "version": "1.0.0",
   "description": "Toono Dev Community API",
-  "main": "./dist/index.js",
+  "main": "./api/index.js",
   "url": "https://splendid-flannel-nightgown-calf.cyclic.app",
   "author": {
     "name": "Kain Nhantumbo",
@@ -13,9 +13,9 @@
     "node": "20.x"
   },
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node api/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "rimraf ./dist && tsc && npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts && tsx src/database/migrate.database.ts",
+    "build": "rimraf ./api && tsc && npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts && tsx src/database/migrate.database.ts",
     "db:migrate": "tsx src/database/migrate.database.ts",
     "db:generate": "npx drizzle-kit generate:pg --config ./src/config/drizzle.config.ts",
     "db:drop": "npx drizzle-kit drop --config ./src/config/drizzle.config.ts",

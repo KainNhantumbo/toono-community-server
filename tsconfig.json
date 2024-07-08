@@ -5,7 +5,7 @@
     "module": "commonjs",
     "rootDir": "./src",
     "moduleResolution": "node",
-    "outDir": "./dist",
+    "outDir": "./api",
     "removeComments": true,
     "noEmit": false,
     "esModuleInterop": true,
