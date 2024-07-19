@@ -1,6 +1,5 @@
 import * as bcrypt from "bcrypt";
 import { isEmpty, isNotEmpty } from "class-validator";
-import { randomUUID } from "crypto";
 import * as drizzle from "drizzle-orm";
 import type { Request, Response } from "express";
 import { cloudinaryAPI } from "../../config/cloudinary.config";
@@ -152,7 +151,7 @@ export default class UserController {
         .where(drizzle.eq(network_urls.user_id, session.id));
     }
 
-    await profileImageHandler(session, user, profileImage);
+    await profileImageHandler(user, profileImage);
     await db.update(users).set(data).where(drizzle.eq(users.id, session.id));
     res.sendStatus(200);
   }
@@ -161,34 +160,32 @@ export default class UserController {
     const { session } = req.body;
 
     //  delete profile image or posts cover images if they exist
-    if (process.env.NODE_ENV === "production") {
-      const posts = await db.query.posts.findMany({
-        where: (table, fn) => fn.eq(table.user_id, users.id),
-        columns: { id: true },
-        with: { coverImage: true }
+    const posts = await db.query.posts.findMany({
+      where: (table, fn) => fn.eq(table.user_id, users.id),
+      columns: { id: true },
+      with: { coverImage: true }
+    });
+
+    const profileImage = await db.query.user_profile_image.findFirst({
+      where: (table, fn) => fn.eq(table.user_id, session.id)
+    });
+
+    if (profileImage && profileImage.public_id) {
+      await cloudinaryAPI.uploader.destroy(profileImage.public_id, {
+        invalidate: true
       });
+    }
 
-      const profileImage = await db.query.user_profile_image.findFirst({
-        where: (table, fn) => fn.eq(table.user_id, session.id)
-      });
+    if (posts.length > 0) {
+      const images = posts.map(({ coverImage }) =>
+        coverImage ? coverImage.public_id : undefined
+      );
 
-      if (profileImage && profileImage.public_id) {
-        await cloudinaryAPI.uploader.destroy(profileImage.public_id, {
-          invalidate: true
-        });
-      }
-
-      if (posts.length > 0) {
-        const images = posts.map(({ coverImage }) =>
-          coverImage ? coverImage.public_id : undefined
-        );
-
-        for (const id of images) {
-          if (id) {
-            await cloudinaryAPI.uploader.destroy(id, {
-              invalidate: true
-            });
-          }
+      for (const id of images) {
+        if (id) {
+          await cloudinaryAPI.uploader.destroy(id, {
+            invalidate: true
+          });
         }
       }
     }
@@ -204,59 +201,36 @@ export default class UserController {
 }
 
 async function profileImageHandler(
-  { id: userId }: { id: string },
   user: { id: string; profile_image: { public_id: string } | null },
   profileImage?: unknown
 ) {
-  if (process.env.NODE_ENV !== "production") {
-    if (typeof profileImage === "string" && isNotEmpty(profileImage)) {
-      if (!user.profile_image) {
-        await db
-          .insert(user_profile_image)
-          .values({ public_id: randomUUID(), url: profileImage, user_id: userId });
-      } else {
-        await db
-          .update(user_profile_image)
-          .set({ public_id: randomUUID(), url: profileImage })
-          .where(drizzle.eq(user_profile_image.user_id, userId));
-      }
-    }
+  if (typeof profileImage !== "string") throw new Exception("Invalid cover image", 400);
 
-    if (typeof profileImage === "string" && isEmpty(profileImage)) {
-      await db
-        .delete(user_profile_image)
-        .where(drizzle.eq(user_profile_image.user_id, userId));
-    }
-  } else {
-    // if the profileImage exists, creates it (if doesn't yet) or updates
-    if (typeof profileImage === "string" && isNotEmpty(profileImage)) {
-      const result = await cloudinaryAPI.uploader.upload(profileImage, {
-        public_id: user.profile_image?.public_id || undefined,
-        folder: CLOUD_USER_IMAGE_REPOSITORY
-      });
-
-      if (!user.profile_image) {
-        await db.insert(user_profile_image).values({
-          public_id: result.public_id,
-          url: result.secure_url,
-          user_id: user.id
-        });
-      } else {
-        await db
-          .update(user_profile_image)
-          .set({ public_id: result.public_id, url: result.secure_url })
-          .where(drizzle.eq(user_profile_image.user_id, userId));
-      }
-
-      // if the profileImage is empty, delete image on the cloud
-      if (typeof profileImage === "string" && isEmpty(profileImage) && user.profile_image) {
-        await cloudinaryAPI.uploader.destroy(user.profile_image.public_id, {
-          invalidate: true
-        });
-        await db
-          .delete(user_profile_image)
-          .where(drizzle.eq(user_profile_image.user_id, userId));
-      }
-    }
+  // if the profileImage is empty, delete image on the cloud
+  if (isEmpty(profileImage) && user.profile_image) {
+    await cloudinaryAPI.uploader.destroy(user.profile_image.public_id, {
+      invalidate: true
+    });
+    await db.delete(user_profile_image).where(drizzle.eq(user_profile_image.user_id, user.id));
+    return;
   }
+
+  // if the profileImage exists, creates it (if doesn't yet) or updates
+  const result = await cloudinaryAPI.uploader.upload(profileImage, {
+    public_id: user.profile_image?.public_id || undefined,
+    folder: CLOUD_USER_IMAGE_REPOSITORY
+  });
+
+  if (!user.profile_image) {
+    return await db.insert(user_profile_image).values({
+      public_id: result.public_id,
+      url: result.secure_url,
+      user_id: user.id
+    });
+  }
+
+  return await db
+    .update(user_profile_image)
+    .set({ public_id: result.public_id, url: result.secure_url })
+    .where(drizzle.eq(user_profile_image.user_id, user.id));
 }

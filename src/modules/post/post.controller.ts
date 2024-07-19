@@ -1,5 +1,4 @@
 import { isEmpty, isNotEmpty, isUUID } from "class-validator";
-import { randomUUID } from "crypto";
 import * as drizzle from "drizzle-orm";
 import type { Request, Response } from "express";
 import slugify from "slugify";
@@ -7,21 +6,9 @@ import { cloudinaryAPI } from "../../config/cloudinary.config";
 import { db } from "../../database/client.database";
 import { post_cover_image, posts } from "../../database/schema.database";
 import Exception from "../../lib/app-exception";
-import { readTime } from "../../lib/utils";
-import { CLOUD_POSTS_IMAGE_REPOSITORY } from "../../shared/constants";
+import { readTime, sanitizer } from "../../lib/utils";
+import { CLOUD_POSTS_IMAGE_REPOSITORY, POSTS_COLUMN_FIELDS } from "../../shared/constants";
 import { createPostSchema, updatePostSchema } from "./post.schema";
-import { sanitizer } from "../../lib/utils";
-
-const columns = [
-  "title",
-  "slug",
-  "read_time",
-  "words",
-  "visits",
-  "tags",
-  "created_at",
-  "updated_at"
-];
 
 export default class PostController {
   async findOnePublicPost(req: Request, res: Response): Promise<void> {
@@ -68,7 +55,8 @@ export default class PostController {
 
     if (isNotEmpty(fields) && typeof fields === "string") {
       requestedColumns = fields.split(",").reduce((acc, field) => {
-        if (!Object.keys(columns).includes(field)) return { ...acc, [field]: true };
+        if (!Object.keys(POSTS_COLUMN_FIELDS).includes(field))
+          return { ...acc, [field]: true };
         return acc;
       }, {});
     }
@@ -86,7 +74,8 @@ export default class PostController {
 
     if (isNotEmpty(fields) && typeof fields === "string") {
       requestedColumns = fields.split(",").reduce((acc, field) => {
-        if (!Object.keys(columns).includes(field)) return { ...acc, [field]: true };
+        if (!Object.keys(POSTS_COLUMN_FIELDS).includes(field))
+          return { ...acc, [field]: true };
         return acc;
       }, {});
     }
