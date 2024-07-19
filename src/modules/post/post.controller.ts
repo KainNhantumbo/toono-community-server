@@ -214,58 +214,35 @@ export default class PostController {
 }
 
 async function coverImageHandler(postId: string, coverImage: unknown) {
+  if (typeof coverImage !== "string") throw new Exception("Invalid cover image", 400);
+
   const foundImage = await db.query.post_cover_image.findFirst({
     where: (table, fn) => fn.eq(table.post_id, postId)
   });
 
-  if (process.env.NODE_ENV === "development") {
-    if (typeof coverImage === "string" && isNotEmpty(coverImage)) {
-      if (!foundImage) {
-        await db
-          .insert(post_cover_image)
-          .values({ public_id: randomUUID(), url: coverImage, post_id: postId });
-      } else {
-        await db
-          .update(post_cover_image)
-          .set({ public_id: randomUUID(), url: coverImage })
-          .where(drizzle.eq(post_cover_image.post_id, postId));
-      }
-    }
-
-    if (typeof coverImage === "string" && coverImage === "") {
-      console.log(coverImage);
-      await db.delete(post_cover_image).where(drizzle.eq(post_cover_image.post_id, postId));
-    }
+  // if the coverImage is empty, delete image on the cloud
+  if (isEmpty(coverImage) && foundImage) {
+    await cloudinaryAPI.uploader.destroy(foundImage.public_id, {
+      invalidate: true
+    });
+    await db.delete(post_cover_image).where(drizzle.eq(post_cover_image.post_id, postId));
+    return;
   }
 
-  if (process.env.NODE_ENV === "production") {
-    // if the coverImage exists, creates it (if doesn't yet) or updates
-    if (typeof coverImage === "string" && isNotEmpty(coverImage)) {
-      const result = await cloudinaryAPI.uploader.upload(coverImage, {
-        public_id: foundImage?.public_id || undefined,
-        folder: CLOUD_POSTS_IMAGE_REPOSITORY
-      });
+  const res = await cloudinaryAPI.uploader.upload(coverImage, {
+    public_id: foundImage?.public_id || undefined,
+    folder: CLOUD_POSTS_IMAGE_REPOSITORY
+  });
 
-      if (!foundImage) {
-        await db.insert(post_cover_image).values({
-          public_id: result.public_id,
-          url: result.secure_url,
-          post_id: postId
-        });
-      } else {
-        await db
-          .update(post_cover_image)
-          .set({ public_id: result.public_id, url: result.secure_url })
-          .where(drizzle.eq(post_cover_image.post_id, postId));
-      }
-
-      // if the coverImage is empty, delete image on the cloud
-      if (typeof coverImage === "string" && isEmpty(coverImage) && foundImage) {
-        await cloudinaryAPI.uploader.destroy(foundImage.public_id, {
-          invalidate: true
-        });
-        await db.delete(post_cover_image).where(drizzle.eq(post_cover_image.post_id, postId));
-      }
-    }
+  if (!foundImage) {
+    return await db.insert(post_cover_image).values({
+      public_id: res.public_id,
+      url: res.secure_url,
+      post_id: postId
+    });
   }
+  return await db
+    .update(post_cover_image)
+    .set({ public_id: res.public_id, url: res.secure_url })
+    .where(drizzle.eq(post_cover_image.post_id, postId));
 }
