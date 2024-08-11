@@ -1,4 +1,4 @@
-# 🌟 Toono Community API (Node.JS + PostgreSQL DB API)
+# 🌟 Toono Community API (Node.JS + PostgreSQL)
 
 This REST API server application is built to serve its endpoints to Toono Community platform ([see the source code here](https://github.com/KainNhantumbo/toono-community-app)), which is currently under active development.
 
@@ -18,7 +18,7 @@ This project is under active development, it means that new features a being bac
 - **Postgres** - database for storing data.
 - **Cloudnary** - provides a cloud assets storage.
 - **Zod** - for data validation.
-- **Drizzle ORM** - an ORM for connecting application to postgreSQL database.
+- **Drizzle ORM** - an ORM for connecting application to PostgreSQL database.
 
 ## 🏗️ Testing and Local Setup
 
@@ -40,11 +40,20 @@ PORT=
 ALLOWED_DOMAINS=
 
 # POSTGRESQL DATABASE URL
-DATABASE_URI=
+DATABASE_URL=
 
 # TOKEN KEYS
 REFRESH_TOKEN=
 ACCESS_TOKEN=
+
+#CLOUDINARY CONFIG
+CLOUDINARY_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+# FOR GITHUB AUTHENTICATION (OPTIONAL)
+GITHUB_SECRET_ID=
+GITHUB_CLIENT_ID=
 ```
 
 Then, in the project directory, you can run in terminal:
