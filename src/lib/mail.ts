@@ -29,7 +29,7 @@ export default class Mail {
 
       return { sent: true, error: null };
     } catch (error: unknown) {
-      return { sent: false, error};
+      return { sent: false, error };
     }
   }
 }
