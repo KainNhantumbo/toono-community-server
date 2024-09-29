@@ -1,14 +1,13 @@
 import "dotenv/config";
 import type { Request, Response } from "express";
+import { Resend } from "resend";
 import { db } from "../../database/client.database";
 import Exception from "../../lib/app-exception";
-import os from "node:os";
 import { createToken, logger } from "../../lib/utils";
-import { ForgotPasswordEmailSchema } from "./account.schema";
-import Mail from "../../lib/mail";
 import MailTemplate from "../../templates/mail.template";
+import { ForgotPasswordEmailSchema } from "./account.schema";
 
-export default class Account {
+export default class AccountController {
   async sendInstructions(req: Request, res: Response) {
     const { email } = await ForgotPasswordEmailSchema.parseAsync(req.body);
 
@@ -26,17 +25,29 @@ export default class Account {
       TOKEN_EXP_TIME
     );
 
-    const hostname = os.hostname();
-    const template = new MailTemplate(user.name, user.email, hostname).build();
-    const mail = new Mail({ html: template });
+    const CLIENT_URL = `${req.baseUrl}/password-recovery-request`;
+    const URL = `${CLIENT_URL}?user=${user.id}&token=${token}`;
+    const template = new MailTemplate(user.name, user.email, URL);
+    const html = template.build();
 
-    const { sent, error } = await mail.send();
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    if (!sent) {
-      logger.error(error);
+    const { error } = await resend.emails.send({
+      from: String(process.env.EMAIL_ACCOUNT),
+      to: user.email,
+      subject: "Password Reset Request",
+      html
+    });
+
+    if (error) {
+      logger.error(error.message);
       throw new Exception("Failed to send mail instructions.", 500);
     }
 
     res.status(200).json({ message: "Message sent." });
+  }
+
+  updateCredentials(req: Request, res: Response) {
+    // const {} = await(req.body);
   }
 }

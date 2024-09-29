@@ -7,12 +7,13 @@ import { corsOptions } from "../../config/cors.config";
 import { rateLimiter } from "../../config/throttle.config";
 import swaggerSpec from "../../docs/swagger-spec.doc.json";
 import ExceptionHandler from "../../middleware/error.middleware";
+import { account_router } from "../account/account.router";
 import { auth_router } from "../auth/auth.router";
+import { backup_router } from "../backup/backup.router";
 import { comments_router } from "../comments/comments.router";
 import { health_router } from "../health/health.router";
 import { post_claps_router } from "../post-claps/post-claps.router";
 import { post_router } from "../post/post.router";
-import { backup_router } from "../backup/backup.router";
 import { user_router } from "../user/user.router";
 import { error_route } from "./app.router";
 
@@ -36,6 +37,7 @@ export default class CreateApp {
     this.app.use("/api/v1/comments", comments_router);
     this.app.use("/api/v1/backup", backup_router);
     this.app.use("/api/v1/claps", post_claps_router);
+    this.app.use("/api/v1/accounts", account_router);
 
     // errors
     this.app.use(error_route);

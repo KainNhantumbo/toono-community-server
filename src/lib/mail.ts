@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { createTransport } from "nodemailer";
 import type { Options } from "nodemailer/lib/mailer";
-import { unknown } from "zod";
 
 export default class Mail {
   private data: Omit<Options, "from" | "replyTo">;
