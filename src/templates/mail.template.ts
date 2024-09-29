@@ -19,11 +19,11 @@ export default class MailTemplate {
                 <title>Password Reset Request</title>
                 <style>
                     body {
-                        font-family: Arial, sans-serif;
+                        font-family: Inter, Roboto, Arial, sans-serif;
                         color: #333;
                         margin: 0;
                         padding: 20px;
-                        background-color: #f4f4f4;
+                        background-color: #fff;
                     }
                     .container {
                         max-width: 600px;
@@ -34,18 +34,18 @@ export default class MailTemplate {
                         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                     }
                     h1 {
-                        color: #007BFF;
+                        color: #FDAD2E;
                     }
                     a {
-                        color: #007BFF;
+                        color: #FDAD2E;
                         text-decoration: none;
                     }
                     .button {
                         display: inline-block;
                         font-size: 16px;
                         font-weight: bold;
-                        color: #ffffff;
-                        background-color: #007BFF;
+                        color: #000;
+                        background-color: #FDAD2E;
                         padding: 10px 20px;
                         border-radius: 5px;
                         text-align: center;
@@ -57,7 +57,7 @@ export default class MailTemplate {
                         color: #666;
                     }
                     .footer a {
-                        color: #007BFF;
+                        color: #FDAD2E;
                     }
                 </style>
             </head>
@@ -65,9 +65,9 @@ export default class MailTemplate {
                 <div class="container">
                     <h1>Toono Community</h1>
                     <p>Hi ${this.userName},</p>
-                    <p>A password reset was requested for your <strong>${this.email}</strong> EmailJS account.</p>
+                    <p>A password reset was requested for your <strong>${this.email}</strong> Toono Community account.</p>
                     <p>Please click the link below to reset your password and set a new one:</p>
-                    <p><a href=${this.redirectUrl} class="button">Reset Password</a></p>
+                    <div><a href=${this.redirectUrl} class="button" target="_blank">Reset Password</a></div>
                     <p>This link will expire in 24 hours.</p>
                     <p>If you're having trouble clicking the button, copy and paste the URL below into your browser:</p>
                     <p><a href=${this.redirectUrl}>${this.redirectUrl}</a></p>

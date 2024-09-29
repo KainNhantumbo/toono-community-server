@@ -5,8 +5,8 @@ import { asyncWrapper } from "../../lib/utils";
 const router = Router();
 const controller = new AccountController();
 
-router.get("/forgot-password", asyncWrapper(controller.sendInstructions));
-router.get("/update-credentials", asyncWrapper(controller.sendInstructions));
-
+router
+  .post("/forgot-password", asyncWrapper(controller.sendInstructions))
+  .patch("/update-credentials", asyncWrapper(controller.updateCredentials));
 
 export { router as account_router };
