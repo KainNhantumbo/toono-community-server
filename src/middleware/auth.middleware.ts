@@ -1,7 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import Exception from "../lib/app-exception";
-import { asyncWrapper, verifyToken } from "../lib/utils";
+import { asyncWrapper } from "../lib/utils";
 import type { Server } from "../types";
+import Token from "../lib/token";
 
 export const authenticate = asyncWrapper(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -9,7 +10,7 @@ export const authenticate = asyncWrapper(
     if (!authHeader || !authHeader.startsWith("Bearer "))
       throw new Exception("Unauthorized.", 401);
     const token = authHeader.split(" ")[1];
-    const decodedPayload = (await verifyToken(
+    const decodedPayload = (await Token.parse(
       token,
       process.env.ACCESS_TOKEN || ""
     )) as Server.DecodedPayload;

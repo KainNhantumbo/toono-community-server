@@ -6,9 +6,10 @@ import { Resend } from "resend";
 import { db } from "../../database/client.database";
 import { users } from "../../database/schema.database";
 import Exception from "../../lib/app-exception";
-import { createToken, logger, verifyToken } from "../../lib/utils";
+import { logger } from "../../lib/utils";
 import MailTemplate from "../../templates/mail.template";
 import { ForgotPasswordEmailSchema, UpdateCredentialsSchema } from "./account.schema";
+import Token from "../../lib/token";
 
 export default class AccountController {
   async sendInstructions(req: Request, res: Response) {
@@ -21,7 +22,7 @@ export default class AccountController {
     if (!user) throw new Exception("User account not found.", 400);
 
     const TOKEN_EXP_TIME = "24h";
-    const token = await createToken(
+    const token = await Token.serialize(
       { id: user.id },
       process.env.ACCESS_TOKEN || "",
       TOKEN_EXP_TIME
@@ -53,7 +54,7 @@ export default class AccountController {
   async updateCredentials(req: Request, res: Response) {
     const data = await UpdateCredentialsSchema.parseAsync(req.body);
 
-    const decodedPayload = await verifyToken(data.token, process.env.ACCESS_TOKEN || "");
+    const decodedPayload = await Token.parse(data.token, process.env.ACCESS_TOKEN || "");
     if (!decodedPayload) throw new Exception("Access denied.", 401);
 
     const user = await db.query.users.findFirst({

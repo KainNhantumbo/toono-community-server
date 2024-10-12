@@ -3,7 +3,7 @@ import "dotenv/config";
 import type { Request, Response } from "express";
 import { db } from "../../database/client.database";
 import Exception from "../../lib/app-exception";
-import { createToken } from "../../lib/utils";
+import Token from "../../lib/token";
 import { Github } from "../../types";
 
 export default class OauthController {
@@ -41,12 +41,12 @@ export default class OauthController {
     if (!user) throw new Exception("User not found", 404);
 
     // authenticate user
-    const accessToken = await createToken(
+    const accessToken = await Token.serialize(
       { id: user.id, role: user.role },
       process.env.ACCESS_TOKEN || "",
       "10m"
     );
-    const refreshToken = await createToken(
+    const refreshToken = await Token.serialize(
       { id: user.id, role: user.role },
       process.env.REFRESH_TOKEN || "",
       "7d"

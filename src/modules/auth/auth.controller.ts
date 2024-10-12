@@ -1,9 +1,9 @@
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
+import Token from "../../lib/token";
 import type { Request, Response } from "express";
 import { db } from "../../database/client.database";
 import Exception from "../../lib/app-exception";
-import { createToken, verifyToken } from "../../lib/utils";
 import { LoginValidationSchema } from "./auth.schema";
 
 export default class AuthController {
@@ -19,12 +19,12 @@ export default class AuthController {
     const match = await bcrypt.compare(password, user.password);
     if (!match) throw new Exception("Wrong password, verify and try again later.", 401);
 
-    const accessToken = await createToken(
+    const accessToken = await Token.serialize(
       { id: user.id, role: user.role },
       process.env.ACCESS_TOKEN || "",
       "10m"
     );
-    const refreshToken = await createToken(
+    const refreshToken = await Token.serialize(
       { id: user.id, role: user.role },
       process.env.REFRESH_TOKEN || "",
       "7d"
@@ -51,7 +51,7 @@ export default class AuthController {
     const token = req.cookies.USER_TOKEN;
     if (!token) throw new Exception("Invalid Credentials.", 401);
 
-    const decodedPayload = await verifyToken(token, process.env.REFRESH_TOKEN || "");
+    const decodedPayload = await Token.parse(token, process.env.REFRESH_TOKEN || "");
     if (!decodedPayload) throw new Exception("Access denied.", 403);
 
     const user = await db.query.users.findFirst({
@@ -61,7 +61,7 @@ export default class AuthController {
     });
 
     if (!user) throw new Exception("Invalid credentials.", 401);
-    const accessToken = await createToken(
+    const accessToken = await Token.serialize(
       { id: user.id, role: user.role },
       process.env.ACCESS_TOKEN || "",
       "10m"
